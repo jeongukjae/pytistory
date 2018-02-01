@@ -10,7 +10,8 @@ setup(
     version='0.0.1',
     description="티스토리 블로그 api client입니다.",
     install_requires=[
-        'flask'
+        'flask',
+        'requests'
     ],
     long_description=README,
     url='https://github.com/JeongUkJae/pytistory',
