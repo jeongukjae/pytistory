@@ -1,5 +1,7 @@
 # -*- coding: utf8 -*-
 #pylint: disable=W0612
+# disable the pylint message W0612 `Unused variable 'callback' and
+# 'callback_modified'`
 """티스토리 OAuth 인증을 위한 로컬서버입니다.
 """
 from flask import Flask, request
@@ -39,9 +41,9 @@ class CallbackServer:
         @app.route('/callback')
         def callback():
             """tistory OAuth 인증 redirect_url에 해당하는 함수입니다.
-            
+
             `/callback_modified`로 리다이렉션 시키는 응답을 내보냅니다.
-            
+
             :return: 요청 경로 상의 해시를 GET 파라미터로 바꾸어주는 스크립트를 반환합니다.
             :rtype: str
             """
@@ -73,7 +75,7 @@ class CallbackServer:
     @staticmethod
     def shutdown_server():
         """flask 앱을 종료시키는 함수입니다.
-        
+
         :raises RuntimeError: Flask 앱이 실행중이 아니라면 종료할 수 없습니다.
         """
         func = request.environ.get('werkzeug.server.shutdown')

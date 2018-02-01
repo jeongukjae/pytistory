@@ -18,8 +18,6 @@ CONFIG_CLIENT_ID = 'client_id'
 CONFIG_SECRET_KEY = 'secret_key'
 CONFIG_ACCESS_TOKEN = 'access_token'
 
-TISTORY_API_BASE_URL = 'https://www.tistory.com/apis/{}/{}'
-
 def callback_process(namespace, event):
     """flask가 실행되는 process 함수.
 
@@ -98,6 +96,9 @@ class PyTistory:
         event.wait()
         if hasattr(namespace, 'access_token'):
             self.access_token = namespace.access_token #pylint: disable=E1101
+            # disable the pylint message E1101 `Instance of 'Namespace'
+            # has no 'access_token' member'`
+            # checked in if statement
         else:
             raise ConfigurationError('Cannot get the access token from a server.')
 
@@ -111,6 +112,12 @@ class PyTistory:
         티스토리 client_id, secret_key 값을 파일에서 읽거나,
         인자에서 받아서 인증을 하게 됩니다.
 
+        :param configure_file_name: configure 파일 이름
+        :type configure_file_name: str
+        :param client_id: 티스토리 OAuth를 위한 client_id 값
+        :type client_id: str
+        :param secret_key: 티스토리 OAuth를 위한 secret_key 값
+        :type secret_key: str
         :raises ConfigurationError: 설정이 불가능할 때 일어납니다.
         """
         if 'configure_file_name' in kwargs:
