@@ -19,6 +19,7 @@ Pygments==2.2.0
 pylint==1.8.2
 pytz==2017.3
 requests==2.18.4
+selenium==3.8.1
 six==1.11.0
 snowballstemmer==1.2.1
 Sphinx==1.6.6
