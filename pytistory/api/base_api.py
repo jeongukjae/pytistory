@@ -5,7 +5,10 @@
 
 PyTistory에서 활용하는 API 클래스의 형태를 정의합니다.
 """
+import json
 import requests
+
+from ..exceptions import ParsingError
 
 class BaseAPI:
     """다른 API들은 이 클래스를 상속받아 이용합니다.
@@ -26,7 +29,36 @@ class BaseAPI:
         }
 
     @staticmethod
-    def _get_url(kind, action, args=None):
+    def _perform(method, url, **kwargs):
+        """Tistory API 서버에 요청하고 응답을 받아와주는 함수입니다.
+
+        만약 Status가 200이 아니라면 Exception을 일으키고,
+        맞다면 응답 결과를 반환합니다.
+
+        :param method: HTTP Method명을 나타냅니다.
+        :type method: str
+        :param url: API URL을 나타냅니다.
+        :type url: str
+        :param params: querystring에 들어갈 인지입니다.
+        :type params: dict
+        :param data: HTTP Body에 들어갈 인자입니다.
+        :type data: dict
+
+        :raises ParsingError: Status를 찾을 수 없거나, 200이 아닐 경우 일어납니다.
+        :return: API의 결과값입니다.
+        :rtype: dict
+        """
+        response = requests.request(method, url, **kwargs)
+        result = json.loads(response.text)
+
+        if 'tistory' in result and 'status' in result['tistory']:
+            if result['tistory']['status'] == '200':
+                return result['tistory']
+
+        raise ParsingError('Status Code is not 200.\nresponse result: {}'.format(result))
+
+    @staticmethod
+    def _get_url(kind, action):
         """Tistory API URL을 만드는 함수입니다.
 
         Kind, Action, Args 인자들을 종합하여 api url을 만들어 반환합니다.
@@ -42,13 +74,5 @@ class BaseAPI:
         :param action:
             API의 작은 분류입니다. 각각 kind 별로 해당하는 값이 존재합니다.
         :type action: str
-        :param args: GET 파라미터로 url 뒤에 붙는 값입니다., defaults to None
-        :param args: dict, optional
         """
-        args = args or {}
-        querystring = '&'.join(map(lambda x: '{}={}'.format(x, args[x]), args))
-
-        if querystring:
-            querystring = '?' + querystring
-
-        return 'https://www.tistory.com/apis/{}/{}{}'.format(kind, action, querystring)
+        return 'https://www.tistory.com/apis/{}/{}'.format(kind, action)

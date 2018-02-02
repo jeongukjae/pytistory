@@ -1,11 +1,13 @@
 # -*- coding: utf8 -*-
 """PyTistory를 정의하는 모듈입니다.
 """
+import os
 import configparser
 import multiprocessing
 import webbrowser
 import time
 
+from .api import Blog
 from .exceptions import ConfigurationError
 from .callback import CallbackServer
 
@@ -44,6 +46,8 @@ class PyTistory:
         self.client_id = ''
         self.secret_key = ''
         self.access_token = ''
+
+        self.blog = None
 
     def _read_configuration_file(self):
         """Configuration File을 읽고, ConfigParser를 반환합니다.
@@ -110,7 +114,10 @@ class PyTistory:
         `Tistory Open API OAuth 인증 <http://www.tistory.com/guide/api/oauth>`_에
         해당하는 구현이고, Client-side flow방식을 이용하였습니다.
         티스토리 client_id, secret_key 값을 파일에서 읽거나,
-        인자에서 받아서 인증을 하게 됩니다.
+        인자에서 받거나, 환경변수에서 받아서 인증을 하게 됩니다.
+
+        환경 변수의 KEY는 `PYTISTORY_CLIENT_ID`, `PYTISTORY_SECRET_KEY` 를
+        사용합니다.
 
         :param configure_file_name: configure 파일 이름
         :type configure_file_name: str
@@ -131,7 +138,14 @@ class PyTistory:
             self.client_id = kwargs['client_id']
             self.secret_key = kwargs['secret_key']
         else:
-            raise ConfigurationError('Cannot configure a PyTistory.')
+            client_id = os.environ.get('PYTISTORY_CLIENT_ID')
+            secret_key = os.environ.get('PYTISTORY_SECRET_KEY')
+
+            if client_id and secret_key:
+                self.client_id = client_id
+                self.secret_key = secret_key
+            else:
+                raise ConfigurationError('Cannot configure a PyTistory.')
 
         # access token 받아오기
         self._set_access_token()
@@ -140,3 +154,25 @@ class PyTistory:
             config[CONFIG_SECTION_NAME][CONFIG_ACCESS_TOKEN] = self.access_token
             with open(self.file_name, 'w') as config_file:
                 config.write(config_file)
+
+        self.blog = Blog(self.access_token)
+
+    def blog_info(self):
+        """Blog 정보 반환하는 함수입니다.
+
+        :class:`Blog` 에서 블로그 정보를 얻어와서 반환합니다.
+
+        :return: Blog 정보
+        :rtype: dict
+        """
+        return self.blog.info()
+
+    def blog_list(self):
+        """Blog 리스트를 반환하는 함수입니다.
+
+        :class:`Blog` 에서 블로그 정보를 얻어오고, 그 중 블로그 리스트만을 추출하여 반환합니다.
+
+        :return: Blog 리스트
+        :rtype: list
+        """
+        return self.blog.info()['item']['blogs']
