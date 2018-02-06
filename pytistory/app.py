@@ -9,8 +9,9 @@ import time
 
 import requests
 
-from .api import Blog
-from .exceptions import ConfigurationError
+from .api import *
+from .exceptions import (ConfigurationError, InvalidSectionError, InvalidNameError,
+    EmailAuthError, WebDriverError, TokenNotFoundError, OptionNotFoundError)
 from .callback import CallbackServer
 
 TISTORY_AUTHORIZE_URL = 'https://www.tistory.com/oauth/authorize'
@@ -59,12 +60,13 @@ class PyTistory:
         """Configuration File을 읽고, ConfigParser를 반환합니다.
 
         self.file_name에 해당하는 파일을 읽고, 해당 파일의 설정값들을 반환합니다.
-        만약, :class:`PyTistory`에서 원하는 내용의 설정 키값들이 없다면, ConfigurationError를
+        만약, :class:`PyTistory`에서 원하는 내용의 설정 키값들이 없다면, Exception을
         일으킵니다.
 
-        :raises ConfigurationError: 설정파일에서 pytistory 섹션을 찾을 수 없을 때 일어납니다.
-        :raises ConfigurationError: pytistory 섹션에서 client_id 키를 찾을 수 없을 때 일어납니다.
-        :raises ConfigurationError: pytistory 섹션에서 secret_key 키를 찾을 수 없을 때 일어납니다.
+        :param headless_auth: Headless 브라우저를 사용해서 인증을 시도할 때 이 인자를 사용합니다., defaults to False
+        :param headless_auth: bool, optional
+        :raises InvalidSectionError: 설정파일에서 pytistory 섹션을 찾을 수 없을 때 일어납니다.
+        :raises InvalidNameError: pytistory 섹션에서 client_id 키를 찾을 수 없을 때 일어납니다.
         :return: 파일에서 읽어들인 config를 반환합니다.
         :rtype: :class:`configparser.ConfigParser`
         """
@@ -73,20 +75,20 @@ class PyTistory:
         config.read(self.file_name)
 
         if CONFIG_SECTION_NAME not in config:
-            raise ConfigurationError('Cannot find a `{}` section in `{}`.'.\
+            raise InvalidSectionError('Cannot find a `{}` section in `{}`.'.\
                 format(CONFIG_SECTION_NAME, self.file_name))
         if CONFIG_CLIENT_ID not in config[CONFIG_SECTION_NAME]:
-            raise ConfigurationError('Cannot find a tistory client id in `{}`.'\
+            raise InvalidNameError('Cannot find a tistory client id in `{}`.'\
                 .format(self.file_name))
         if CONFIG_SECRET_KEY not in config[CONFIG_SECTION_NAME]:
-            raise ConfigurationError('Cannot find a tistory secret key in `{}`.'\
+            raise InvalidNameError('Cannot find a tistory secret key in `{}`.'\
                 .format(self.file_name))
         if headless_auth:
             if CONFIG_TISTORY_ID not in config[CONFIG_SECTION_NAME]:
-                raise ConfigurationError('Cannot find a tistory user id in `{}`.'\
+                raise InvalidNameError('Cannot find a tistory user id in `{}`.'\
                     .format(self.file_name))
             if CONFIG_TISTORY_PASSWORD not in config[CONFIG_SECTION_NAME]:
-                raise ConfigurationError('Cannot find a tistory password in `{}`.'\
+                raise InvalidNameError('Cannot find a tistory password in `{}`.'\
                     .format(self.file_name))
 
         return config
@@ -106,7 +108,12 @@ class PyTistory:
         `CallbackServer`를 구동시킨 후, 티스토리 인증 창을 브라우저를 통해 엽니다.
         그 후 인증이 되었다면, access_token을 받아옵니다.
 
-        :raises ConfigurationError: 만약 access_token이 정상적으로 받아와지지 않았을 경우입니다.
+        :param headless_auth: Headless 브라우저를 사용해서 인증을 시도할 때 이 인자를 사용합니다.
+        :param headless_auth: bool
+        :raises ImportError: selenium을 import할 수 없는 경우입니다.
+        :raises WebDriverError: Headless Chrome을 사용할 수 없는 경우입니다.
+        :raises EmailAuthError: 티스토리 인증 중 이메일 인증이 필요한 경우입니다.
+        :raises TokenNotFoundError: 만약 access_token이 정상적으로 받아와지지 않았을 경우입니다.
         """
         multiprocessing_manager = multiprocessing.Manager()
         namespace = multiprocessing_manager.Namespace()
@@ -134,7 +141,7 @@ class PyTistory:
                 options.add_argument('headless')
                 driver = webdriver.Chrome(chrome_options=options)
             except WebDriverException:
-                raise ConfigurationError('Cannot open PhantomJS. Please install PhantomJS.')
+                raise WebDriverError('Cannot open Chrome Headless. Please install Chrome Headless.')
 
             driver.get(request_uri)
             driver.find_element_by_name('loginId').send_keys(self.tistory_id)
@@ -153,7 +160,7 @@ class PyTistory:
             elif current_url.endswith('auth/login'):
                 process.terminate()
                 process.join()
-                raise ConfigurationError('Email authentication is required to log in to Tistory.')
+                raise EmailAuthError('Email authentication is required to log in to Tistory.')
 
             driver.quit()
 
@@ -164,13 +171,12 @@ class PyTistory:
             # has no 'access_token' member'`
             # checked in if statement
         else:
-            raise ConfigurationError('Cannot get the access token from a server.')
+            raise TokenNotFoundError('Cannot get the access token from a server.')
 
         process.join()
 
     def configure(self, configure_file_name=None,
                   client_id=None, secret_key=None,
-                  headless_auth=False,
                   tistory_id=None, tistory_password=None):
         """Tistory OAuth 2.0 인증을 실행하는 함수입니다.
 
@@ -182,16 +188,20 @@ class PyTistory:
         환경 변수의 KEY는 `PYTISTORY_CLIENT_ID`, `PYTISTORY_SECRET_KEY` 를
         사용합니다.
 
-        :param configure_file_name: configure 파일 이름
-        :type configure_file_name: str
-        :param client_id: 티스토리 OAuth를 위한 client_id 값
-        :type client_id: str
-        :param secret_key: 티스토리 OAuth를 위한 secret_key 값
-        :type secret_key: str
-        :param headless_auth: 사용자가 직접 아이디 패스워드를 입력하지 않고 인증시킵니다. 아이디와 패스워드가 추가로 필요합니다.
-        :type headless_auth: bool
-        :raises ConfigurationError: 설정이 불가능할 때 일어납니다.
+        :param configure_file_name: configure 파일 이름, defaults to None
+        :type configure_file_name: str, optional
+        :param client_id: 티스토리 OAuth를 위한 client_id 값, defaults to None
+        :type client_id: str, optional
+        :param secret_key: 티스토리 OAuth를 위한 secret_key 값, defaults to None
+        :type secret_key: str, optional
+        :param tistory_id: 티스토리 아이디입니다., defaults to None
+        :type tistory_id: str, optional
+        :param tistory_password: 티스토리 비밀번호입니다., defaults to None
+        :type tistory_password: str, optional
+        :raises OptionNotFoundError: 인증 과정에서 아무런 인증 옵션이 없을 때 일어나는 에러입니다.
         """
+        headless_auth = False
+
         if configure_file_name is not None:
             # 파일에서 설정읽기
             self.file_name = configure_file_name
@@ -199,9 +209,10 @@ class PyTistory:
 
             self.client_id = config[CONFIG_SECTION_NAME][CONFIG_CLIENT_ID]
             self.secret_key = config[CONFIG_SECTION_NAME][CONFIG_SECRET_KEY]
-            if headless_auth:
-                self.tistory_id = config[CONFIG_SECTION_NAME][CONFIG_TISTORY_ID]
-                self.tistory_password = config[CONFIG_SECTION_NAME][CONFIG_TISTORY_PASSWORD]
+            self.tistory_id = config[CONFIG_SECTION_NAME][CONFIG_TISTORY_ID]
+            self.tistory_password = config[CONFIG_SECTION_NAME][CONFIG_TISTORY_PASSWORD]
+            if self.tistory_id and self.tistory_password:
+                headless_auth = True
         elif client_id is not None and secret_key is not None:
             self.client_id = client_id
             self.secret_key = secret_key
@@ -214,25 +225,24 @@ class PyTistory:
             self.secret_key = os.environ.get('PYTISTORY_SECRET_KEY')
 
             if self.client_id is None or self.secret_key is None:
-                raise ConfigurationError('Cannot configure a PyTistory.')
+                raise OptionNotFoundError('Cannot configure a PyTistory.')
 
-            if headless_auth:
-                self.tistory_id = os.environ.get('PYTISTORY_TISTORY_ID')
-                self.tistory_password = os.environ.get('PYTISTORY_TISTORY_PASSWORD')
+            self.tistory_id = os.environ.get('PYTISTORY_TISTORY_ID')
+            self.tistory_password = os.environ.get('PYTISTORY_TISTORY_PASSWORD')
 
-                if self.tistory_id is None or self.tistory_password:
-                    raise ConfigurationError('Cannot configure a PyTistory.\n' +\
-                        'There is no tistory id and password')
+            if self.tistory_id and self.tistory_password:
+                headless_auth = True
 
         # access token 받아오기
         self._set_access_token(headless_auth)
+
+        self.blog = Blog(self.access_token)
+        self.post = Post(self.access_token)
 
         if self.file_name:
             config[CONFIG_SECTION_NAME][CONFIG_ACCESS_TOKEN] = self.access_token
             with open(self.file_name, 'w') as config_file:
                 config.write(config_file)
-
-        self.blog = Blog(self.access_token)
 
     def blog_info(self):
         """Blog 정보 반환하는 함수입니다.
@@ -253,3 +263,6 @@ class PyTistory:
         :rtype: list
         """
         return self.blog.info()['item']['blogs']
+
+    def post_list(self, blog_name, target_url=None):
+        return self.post.list(blog_name, target_url=target_url)
