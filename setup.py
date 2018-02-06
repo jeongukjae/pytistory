@@ -5,9 +5,14 @@ from setuptools import setup, find_packages
 with open('README.rst', encoding='utf-8') as f:
     README = f.read()
 
+with open('pytistory/__init__.py', encoding='utf-8') as f:
+    for line in f.readlines():
+        if '__version__' in line:
+            version = line.split("'")[1]
+
 setup(
     name='pytistory',
-    version='0.0.1',
+    version=version,
     description="티스토리 블로그 api client입니다.",
     install_requires=[
         'flask',
