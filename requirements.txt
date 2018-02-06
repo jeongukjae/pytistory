@@ -4,7 +4,8 @@ Babel==2.5.3
 certifi==2018.1.18
 chardet==3.0.4
 click==6.7
-coverage==4.4.2
+codecov==2.0.15
+coverage==4.5
 docutils==0.14
 Flask==0.12.2
 idna==2.6
