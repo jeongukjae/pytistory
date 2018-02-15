@@ -22,6 +22,7 @@ setup(
     url='https://github.com/JeongUkJae/pytistory',
     author='Jeong Ukjae',
     author_email='jeongukjae@gmail.com',
+    license='MIT',
     classifiers=[
         'Development Status :: 2 - Pre-Alpha',
 
