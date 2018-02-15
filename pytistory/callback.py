@@ -70,7 +70,7 @@ class CallbackServer:
 
             return CLOSE_WINDOW
 
-        app.run()
+        app.run(host='localhost')
 
     @staticmethod
     def shutdown_server():
