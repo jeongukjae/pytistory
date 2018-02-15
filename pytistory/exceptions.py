@@ -29,7 +29,8 @@ class WebDriverError(ConfigurationError):
     pass
 
 class TokenNotFoundError(ConfigurationError):
-    """Tistory 인증 마지막 과정에서 토큰을 찾을 수 없을 때 일어나는 에러입니다.
+    """Tistory 인증 마지막 과정에서 토큰을 찾을 수 없을 때,
+    또는 API 실행 중 토큰이 설정되어 있지 않을 때 일어나는 에러입니다.
     """
     pass
 

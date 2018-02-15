@@ -8,14 +8,20 @@ PyTistory에서 활용하는 API 클래스의 형태를 정의합니다.
 import json
 import requests
 
-from ..exceptions import ParsingError
+from ..exceptions import ParsingError, TokenNotFoundError
 
 class BaseAPI:
     """다른 API들은 이 클래스를 상속받아 이용합니다.
 
     공통적으로 쓸 함수들을 포함합니다.
     """
-    def __init__(self, access_token):
+    def __init__(self, access_token = None):
+        self.access_token = None
+
+        if access_token:
+            self.set_access_token(access_token)
+
+    def set_access_token(self, access_token):
         self.access_token = access_token
 
     def _get_default_params(self):
@@ -23,6 +29,9 @@ class BaseAPI:
 
         access_token과 output은 기본적인 인자라 함수로 만들어서 dict로 반환하도록 했습니다.
         """
+        if self.access_token is None:
+            raise TokenNotFoundError('You have not set up an `Access Token` yet.' +\
+                ' Call configure() first.')
         return {
             'access_token': self.access_token,
             'output': 'json'

@@ -54,7 +54,9 @@ class PyTistory:
         self.tistory_id = ''
         self.tistory_password = ''
 
-        self.blog = None
+        self.blog = Blog()
+        self.post = Post()
+        self.category = Category()
 
     def _read_configuration_file(self, headless_auth=False):
         """Configuration File을 읽고, ConfigParser를 반환합니다.
@@ -236,8 +238,9 @@ class PyTistory:
         # access token 받아오기
         self._set_access_token(headless_auth)
 
-        self.blog = Blog(self.access_token)
-        self.post = Post(self.access_token)
+        self.blog.set_access_token(self.access_token)
+        self.post.set_access_token(self.access_token)
+        self.category.set_access_token(self.access_token)
 
         if self.file_name:
             config[CONFIG_SECTION_NAME][CONFIG_ACCESS_TOKEN] = self.access_token
