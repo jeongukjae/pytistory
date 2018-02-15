@@ -1,5 +1,4 @@
 # -*- coding: utf8 -*-
-#pylint: disable=R0903
 """Blog 관련 API Client 구현입니다.
 """
 from .base_api import BaseAPI
@@ -27,6 +26,4 @@ class Blog(BaseAPI):
         :rtype: dict
         """
         url = self._get_url(self.kind, 'info')
-        response = self._perform('GET', url, params=self._get_default_params())
-
-        return response
+        return self._perform('GET', url, params=self._get_default_params())

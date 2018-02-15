@@ -1,5 +1,4 @@
 # -*- coding: utf8 -*-
-#pylint: disable=R0903
 """Post 관련 API Client 구현입니다.
 """
 import warnings
