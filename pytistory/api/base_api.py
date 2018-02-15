@@ -15,13 +15,18 @@ class BaseAPI:
 
     공통적으로 쓸 함수들을 포함합니다.
     """
-    def __init__(self, access_token = None):
+    def __init__(self, access_token=None):
         self.access_token = None
 
         if access_token:
             self.set_access_token(access_token)
 
     def set_access_token(self, access_token):
+        """Access Token을 설정합니다.
+
+        :param access_token: Tistory 인증 후 반환되는 Access Token입니다.
+        :type access_token: str
+        """
         self.access_token = access_token
 
     def _get_default_params(self):

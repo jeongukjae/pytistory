@@ -26,24 +26,23 @@ class Post(BaseAPI):
     - post/delete
         단일 게시글을 삭제할 수 있는 API입니다.
     """
-    def __init__(self, *args, **kwargs):
-        super(Post, self).__init__(*args, **kwargs)
-        self.kind = 'post'
+    # pylint: disable=too-many-arguments
+    kind = 'post'
 
     def list(self, blog_name=None, target_url=None):
         """post/list API 구현입니다.
-        
+
         최근 게시물 목록을 가져올 수 있는 API입니다. 해당 API에 관한 정보는
         `링크 <http://www.tistory.com/guide/api/post.php#post-list>`_ 를 통해
         살펴보실 수 있습니다.
-        
+
         :param blog_name: 블로그 명입니다., defaults to None
         :type blog_name: str, optional
         :param target_url: 블로그의 url입니다. deprecated된 옵션입니다., defaults to None
         :type target_url: str, optional
         :raise NoSpecifiedBlog: 블로그 정보를 설정할 수 없을 때 일어납니다.
         :raise TypeError: 인자의 타입이 잘못되었을 때 일어납니다.
-        :return: 
+        :return:
             `최근 게시글 목록 API <http://www.tistory.com/guide/api/post.php#post-list>`_ 링크에서
             어떤 데이터가 넘어오는 지 알 수 있습니다.
         :rtype: dict
@@ -54,7 +53,8 @@ class Post(BaseAPI):
             params['blogName'] = blog_name
         elif target_url:
             params['targetUrl'] = target_url
-            warnings.warn('A parameter `targetUrl` is deprecated. See also `http://www.tistory.com/guide/api/post.php`.')
+            warnings.warn('A parameter `targetUrl` is deprecated.' +\
+                ' See also `http://www.tistory.com/guide/api/post.php`.')
         else:
             raise NoSpecifiedBlogError('There is no blog specified in parameters.')
 
@@ -63,7 +63,7 @@ class Post(BaseAPI):
         return response
 
     def write(self, title, blog_name=None, target_url=None, visibility=0,
-              published=None, category=0, content=None, slogan=None, tag=[]):
+              published=None, category=0, content=None, slogan=None, tag=None):
         """post/list API 구현입니다.
 
         게시글을 작성할 수 있는 API입니다. 해당 API에 관한 정보는
@@ -81,7 +81,7 @@ class Post(BaseAPI):
             - 1: 보호
             - 2: 공개
             - 3: 발행
-            
+
             defaults to 0
         :type visibility: int, optional
         :param published: 발행 시간. 만약 설정시 예약 발행이 됨., defaults to None
@@ -94,7 +94,7 @@ class Post(BaseAPI):
         :type slogan: str, optional
         :raise NoSpecifiedBlog: 블로그 정보를 설정할 수 없을 때 일어납니다.
         :raise TypeError: 인자의 타입이 잘못되었을 때 일어납니다.
-        :return: 
+        :return:
             `최근 게시글 목록 API <http://www.tistory.com/guide/api/post.php#post-write>`_ 링크에서
             어떤 데이터가 넘어오는 지 알 수 있습니다.
         :rtype: dict
@@ -102,16 +102,20 @@ class Post(BaseAPI):
         url = self._get_url(self.kind, 'write')
         params = self._get_default_params()
 
-        if type(visibility) == int and visibility >= 0 and visibility <= 3:
+        if isinstance(visibility, int) and visibility >= 0 and visibility <= 3:
             params['visibility'] = visibility
         else:
             raise TypeError('A visibility must be 0, 1, 2, or 3.')
-        if type(published) == datetime.datetime:
+        if isinstance(published, datetime.datetime):
             params['published'] = published.timestamp()
         else:
             raise TypeError('A published must be a datetime object')
 
-        if type(tag) == list:
+        # dangerous-default-value
+        if tag is None:
+            tag = []
+
+        if isinstance(tag, list):
             params['tag'] = ','.join(tag)
         else:
             raise TypeError('A tag must be a list.')
@@ -120,7 +124,8 @@ class Post(BaseAPI):
             params['blogName'] = blog_name
         elif target_url:
             params['targetUrl'] = target_url
-            warnings.warn('A parameter `targetUrl` is deprecated. See also `http://www.tistory.com/guide/api/post.php`.')
+            warnings.warn('A parameter `targetUrl` is deprecated.' +\
+                ' See also `http://www.tistory.com/guide/api/post.php`.')
         else:
             raise NoSpecifiedBlogError('There is no blog specified in parameters.')
 
@@ -134,13 +139,13 @@ class Post(BaseAPI):
         return response
 
     def modify(self, title, post_id, blog_name=None, target_url=None, visibility=0,
-              category=0, content=None, slogan=None, tag=[]):
+               category=0, content=None, slogan=None, tag=None):
         """post/modify API 구현입니다.
-        
+
         최근 게시물 목록을 가져올 수 있는 API입니다. 해당 API에 관한 정보는
         `링크 <http://www.tistory.com/guide/api/post.php#post-modify>`_ 를 통해
         살펴보실 수 있습니다.
-        
+
         :param title: 포스트 제목입니다.
         :type title: str
         :param post_id: 포스트 고유번호입니다.
@@ -154,7 +159,7 @@ class Post(BaseAPI):
             - 1: 보호
             - 2: 공개
             - 3: 발행
-            
+
             defaults to 0
         :type visibility: int, optional
         :param category: 0은 분류없음. 값 설정시 카테고리 설정, defaults to 0
@@ -165,7 +170,7 @@ class Post(BaseAPI):
         :type slogan: str, optional
         :raise NoSpecifiedBlog: 블로그 정보를 설정할 수 없을 때 일어납니다.
         :raise TypeError: 인자의 타입이 잘못되었을 때 일어납니다.
-        :return: 
+        :return:
             `최근 게시글 목록 API <http://www.tistory.com/guide/api/post.php#post-modify>`_ 링크에서
             어떤 데이터가 넘어오는 지 알 수 있습니다.
         :rtype: dict
@@ -173,11 +178,13 @@ class Post(BaseAPI):
         url = self._get_url(self.kind, 'modify')
         params = self._get_default_params()
 
-        if type(visibility) == int and visibility >= 0 and visibility <= 3:
+        if isinstance(visibility, int) and visibility >= 0 and visibility <= 3:
             params['visibility'] = visibility
         else:
             raise TypeError('A visibility must be 0, 1, 2, or 3.')
-        if type(tag) == list:
+        if tag is None:
+            tag = []
+        if isinstance(tag, list):
             params['tag'] = ','.join(tag)
         else:
             raise TypeError('A tag must be a list.')
@@ -185,7 +192,8 @@ class Post(BaseAPI):
             params['blogName'] = blog_name
         elif target_url:
             params['targetUrl'] = target_url
-            warnings.warn('A parameter `targetUrl` is deprecated. See also `http://www.tistory.com/guide/api/post.php`.')
+            warnings.warn('A parameter `targetUrl` is deprecated.' +\
+                ' See also `http://www.tistory.com/guide/api/post.php`.')
         else:
             raise NoSpecifiedBlogError('There is no blog specified in parameters.')
 
@@ -200,6 +208,24 @@ class Post(BaseAPI):
         return response
 
     def read(self, post_id, blog_name=None, target_url=None):
+        """post/read API 구현입니다.
+
+        단일 게시글을 읽을 수 있는 API입니다. 해당 API에 관한 정보는
+        `링크 <http://www.tistory.com/guide/api/post.php#post-read>`_ 를 통해
+        살펴보실 수 있습니다.
+
+        :param post_id: 게시글 번호
+        :type post_id: int
+        :param blog_name: 블로그 명입니다., defaults to None
+        :type blog_name: str, optional
+        :param target_url: 블로그의 url입니다. deprecated된 옵션입니다., defaults to None
+        :type target_url: str, optional
+        :raises NoSpecifiedBlogError: 해당하는 블로그가 존재하지 않을 때 일어나는 에러입니다.
+        :return:
+            `글 읽기 API  <http://www.tistory.com/guide/api/post.php#post-read>`_ 링크에서
+            어떤 데이터가 넘어오는 지 알 수 있습니다.
+        :rtype: dict
+        """
         url = self._get_url(self.kind, 'read')
         params = self._get_default_params()
 
@@ -207,7 +233,8 @@ class Post(BaseAPI):
             params['blogName'] = blog_name
         elif target_url:
             params['targetUrl'] = target_url
-            warnings.warn('A parameter `targetUrl` is deprecated. See also `http://www.tistory.com/guide/api/post.php`.')
+            warnings.warn('A parameter `targetUrl` is deprecated.' +\
+                ' See also `http://www.tistory.com/guide/api/post.php`.')
         else:
             raise NoSpecifiedBlogError('There is no blog specified in parameters.')
 
@@ -218,6 +245,24 @@ class Post(BaseAPI):
         return response
 
     def attach(self, uploaded_file, blog_name=None, target_url=None):
+        """post/attach API 구현입니다.
+
+        파일을 첨부 할 수 있는 API입니다. 해당 API에 관한 정보는
+        `링크 <http://www.tistory.com/guide/api/post.php#post-attach>`_ 를 통해
+        살펴보실 수 있습니다.
+
+        :param uploaded_file: 업로드할 파일의 경로입니다.
+        :type uploaded_file: str
+        :param blog_name: 블로그 명입니다., defaults to None
+        :type blog_name: str, optional
+        :param target_url: 블로그의 url입니다. deprecated된 옵션입니다., defaults to None
+        :type target_url: str, optional
+        :raises NoSpecifiedBlogError: 해당하는 블로그가 존재하지 않을 때 일어나는 에러입니다.
+        :return:
+            `파일 첨부 API  <http://www.tistory.com/guide/api/post.php#post-attach>`_ 링크에서
+            어떤 데이터가 넘어오는 지 알 수 있습니다.
+        :rtype: dict
+        """
         url = self._get_url(self.kind, 'attach')
         params = self._get_default_params()
 
@@ -225,7 +270,8 @@ class Post(BaseAPI):
             params['blogName'] = blog_name
         elif target_url:
             params['targetUrl'] = target_url
-            warnings.warn('A parameter `targetUrl` is deprecated. See also `http://www.tistory.com/guide/api/post.php`.')
+            warnings.warn('A parameter `targetUrl` is deprecated.' +\
+                ' See also `http://www.tistory.com/guide/api/post.php`.')
         else:
             raise NoSpecifiedBlogError('There is no blog specified in parameters.')
 
@@ -236,6 +282,24 @@ class Post(BaseAPI):
         return response
 
     def delete(self, post_id, blog_name=None, target_url=None):
+        """post/delete API 구현입니다.
+
+        단일 게시글을 삭제할 수 있는 API입니다. 해당 API에 관한 정보는
+        `링크 <http://www.tistory.com/guide/api/post.php#post-delete>`_ 를 통해
+        살펴보실 수 있습니다.
+
+        :param post_id: 삭제할 게시글 번호입니다.
+        :type post_id: int
+        :param blog_name: 블로그 명입니다., defaults to None
+        :type blog_name: str, optional
+        :param target_url: 블로그의 url입니다. deprecated된 옵션입니다., defaults to None
+        :type target_url: str, optional
+        :raises NoSpecifiedBlogError: 해당하는 블로그가 존재하지 않을 때 일어나는 에러입니다.
+        :return:
+            `글 삭제 API  <http://www.tistory.com/guide/api/post.php#post-delete>`_ 링크에서
+            어떤 데이터가 넘어오는 지 알 수 있습니다.
+        :rtype: dict
+        """
         url = self._get_url(self.kind, 'delete')
         params = self._get_default_params()
 
@@ -243,7 +307,8 @@ class Post(BaseAPI):
             params['blogName'] = blog_name
         elif target_url:
             params['targetUrl'] = target_url
-            warnings.warn('A parameter `targetUrl` is deprecated. See also `http://www.tistory.com/guide/api/post.php`.')
+            warnings.warn('A parameter `targetUrl` is deprecated.' +\
+                ' See also `http://www.tistory.com/guide/api/post.php`.')
         else:
             raise NoSpecifiedBlogError('There is no blog specified in parameters.')
 

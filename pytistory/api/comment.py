@@ -21,7 +21,8 @@ class Comment(BaseAPI):
             params['blogName'] = blog_name
         elif target_url:
             params['targetUrl'] = target_url
-            warnings.warn('A parameter `targetUrl` is deprecated. See also `http://www.tistory.com/guide/api/comment.php`.')
+            warnings.warn('A parameter `targetUrl` is deprecated.' +\
+                ' See also `http://www.tistory.com/guide/api/comment.php`.')
         else:
             raise NoSpecifiedBlogError('There is no blog specified in parameters.')
 
@@ -39,7 +40,8 @@ class Comment(BaseAPI):
             params['blogName'] = blog_name
         elif target_url:
             params['targetUrl'] = target_url
-            warnings.warn('A parameter `targetUrl` is deprecated. See also `http://www.tistory.com/guide/api/comment.php`.')
+            warnings.warn('A parameter `targetUrl` is deprecated.' +\
+                ' See also `http://www.tistory.com/guide/api/comment.php`.')
         else:
             raise NoSpecifiedBlogError('There is no blog specified in parameters.')
 
@@ -55,7 +57,8 @@ class Comment(BaseAPI):
             params['blogName'] = blog_name
         elif target_url:
             params['targetUrl'] = target_url
-            warnings.warn('A parameter `targetUrl` is deprecated. See also `http://www.tistory.com/guide/api/comment.php`.')
+            warnings.warn('A parameter `targetUrl` is deprecated.' +\
+                ' See also `http://www.tistory.com/guide/api/comment.php`.')
         else:
             raise NoSpecifiedBlogError('There is no blog specified in parameters.')
 
@@ -79,7 +82,8 @@ class Comment(BaseAPI):
             params['blogName'] = blog_name
         elif target_url:
             params['targetUrl'] = target_url
-            warnings.warn('A parameter `targetUrl` is deprecated. See also `http://www.tistory.com/guide/api/comment.php`.')
+            warnings.warn('A parameter `targetUrl` is deprecated.' +\
+                ' See also `http://www.tistory.com/guide/api/comment.php`.')
         else:
             raise NoSpecifiedBlogError('There is no blog specified in parameters.')
 
@@ -104,7 +108,8 @@ class Comment(BaseAPI):
             params['blogName'] = blog_name
         elif target_url:
             params['targetUrl'] = target_url
-            warnings.warn('A parameter `targetUrl` is deprecated. See also `http://www.tistory.com/guide/api/comment.php`.')
+            warnings.warn('A parameter `targetUrl` is deprecated.' +\
+                ' See also `http://www.tistory.com/guide/api/comment.php`.')
         else:
             raise NoSpecifiedBlogError('There is no blog specified in parameters.')
 

@@ -9,9 +9,9 @@ import time
 
 import requests
 
-from .api import *
-from .exceptions import (ConfigurationError, InvalidSectionError, InvalidNameError,
-    EmailAuthError, WebDriverError, TokenNotFoundError, OptionNotFoundError)
+from .api import Blog, Category, Post, Comment, Guestbook
+from .exceptions import (InvalidSectionError, InvalidNameError, OptionNotFoundError,
+                         EmailAuthError, WebDriverError, TokenNotFoundError)
 from .callback import CallbackServer
 
 TISTORY_AUTHORIZE_URL = 'https://www.tistory.com/oauth/authorize'
@@ -46,6 +46,8 @@ class PyTistory:
 
       - 인증
     """
+    # pylint: disable=too-many-instance-attributes,too-few-public-methods
+    # 해당 클래스의 멤버를 통해 api를 부르므로, too-few-public-methods는 체크할 필요가 없다.
     def __init__(self):
         self.file_name = ''
         self.client_id = ''
@@ -179,6 +181,7 @@ class PyTistory:
 
         process.join()
 
+    #pylint: disable=too-many-arguments
     def configure(self, configure_file_name=None,
                   client_id=None, secret_key=None,
                   tistory_id=None, tistory_password=None):

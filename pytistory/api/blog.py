@@ -12,10 +12,7 @@ class Blog(BaseAPI):
     - blog/info
         사용자의 계정에 해당하는 블로그 정보를 얻어옵니다.
     """
-    def __init__(self, *args, **kwargs):
-        super(Blog, self).__init__(*args, **kwargs)
-        self.kind = 'blog'
-        self.blog_info = None
+    kind = 'blog'
 
     def info(self):
         """blog/info API 구현입니다.
@@ -29,11 +26,7 @@ class Blog(BaseAPI):
             어떤 데이터가 넘어오는 지 알 수 있습니다.
         :rtype: dict
         """
-        if self.blog_info:
-            return self.blog_info
-
         url = self._get_url(self.kind, 'info')
         response = self._perform('GET', url, params=self._get_default_params())
-        self.blog_info = response
 
         return response
