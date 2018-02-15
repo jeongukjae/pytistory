@@ -141,7 +141,7 @@ class PyTistory:
             try:
                 options = webdriver.ChromeOptions()
                 options.add_argument('headless')
-                driver = webdriver.Chrome(chrome_options=options)
+                driver = webdriver.Chrome(options=options)
             except WebDriverException:
                 raise WebDriverError('Cannot open Chrome Headless. Please install Chrome Headless.')
 
