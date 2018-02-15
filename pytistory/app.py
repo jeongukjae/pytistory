@@ -57,6 +57,8 @@ class PyTistory:
         self.blog = Blog()
         self.post = Post()
         self.category = Category()
+        self.comment = Comment()
+        self.guestbook = Guestbook()
 
     def _read_configuration_file(self, headless_auth=False):
         """Configuration File을 읽고, ConfigParser를 반환합니다.
@@ -241,31 +243,10 @@ class PyTistory:
         self.blog.set_access_token(self.access_token)
         self.post.set_access_token(self.access_token)
         self.category.set_access_token(self.access_token)
+        self.comment.set_access_token(self.access_token)
+        self.guestbook.set_access_token(self.access_token)
 
         if self.file_name:
             config[CONFIG_SECTION_NAME][CONFIG_ACCESS_TOKEN] = self.access_token
             with open(self.file_name, 'w') as config_file:
                 config.write(config_file)
-
-    def blog_info(self):
-        """Blog 정보 반환하는 함수입니다.
-
-        :class:`Blog` 에서 블로그 정보를 얻어와서 반환합니다.
-
-        :return: Blog 정보
-        :rtype: dict
-        """
-        return self.blog.info()
-
-    def blog_list(self):
-        """Blog 리스트를 반환하는 함수입니다.
-
-        :class:`Blog` 에서 블로그 정보를 얻어오고, 그 중 블로그 리스트만을 추출하여 반환합니다.
-
-        :return: Blog 리스트
-        :rtype: list
-        """
-        return self.blog.info()['item']['blogs']
-
-    def post_list(self, blog_name, target_url=None):
-        return self.post.list(blog_name, target_url=target_url)
