@@ -1,9 +1,18 @@
 sudo: false
 language: python
+addons:
+  chrome: stable
 python:
   - '3.4'
   - '3.6'
 install:
+  - wget -N http://chromedriver.storage.googleapis.com/2.30/chromedriver_linux64.zip -P ~/
+  - unzip ~/chromedriver_linux64.zip -d ~/
+  - rm ~/chromedriver_linux64.zip
+  - sudo mv -f ~/chromedriver /usr/local/share/
+  - sudo chmod +x /usr/local/share/chromedriver
+  - sudo ln -s /usr/local/share/chromedriver /usr/local/bin/chromedriver
+  - pip install selenium
   - pip install codecov
 script:
   - coverage run --source=pytistory setup.py test
