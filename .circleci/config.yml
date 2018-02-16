@@ -36,7 +36,8 @@ jobs:
           name: run tests
           command: |
             . env/bin/activate
-            coverage run --source=pytistory setup.py test
+            coverage run setup.py test
+            coverage combine
 
       - run:
           name: post the test report
