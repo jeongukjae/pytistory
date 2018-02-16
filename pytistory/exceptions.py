@@ -44,11 +44,6 @@ class OptionNotFoundError(ConfigurationError):
     """
     pass
 
-class CallbackServerError(Exception):
-    """CallbackServer에서 일어나는 Exception입니다. access_token을 받아오지 못하면 일어납니다.
-    """
-    pass
-
 class ParsingError(Exception):
     """Tistory API를 사용하며 적절한 응답이 오지 않을 때 일어나는 Exception입니다.
     """

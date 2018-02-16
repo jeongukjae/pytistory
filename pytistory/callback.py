@@ -5,7 +5,6 @@
 """티스토리 OAuth 인증을 위한 로컬서버입니다.
 """
 from flask import Flask, request
-from .exceptions import CallbackServerError
 
 HASH_TO_ARGS = """
 <script>
@@ -55,7 +54,6 @@ class CallbackServer:
 
             flask app을 종료시키고, access_token을 메인 프로세스에 전달합니다.
 
-            :raises CallbackServerError: 인자에 access_token이 존재하지 않을 때 일어납니다.
             :return: 창을 닫아주는 스크립트를 반환합니다.
             :rtype: str
             """

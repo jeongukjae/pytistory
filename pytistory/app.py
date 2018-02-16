@@ -171,7 +171,7 @@ class PyTistory:
                 try:
                     driver.find_element_by_xpath('//*[@id="authForm"]/fieldset' +\
                         '/div/div[contains(@class, \'box_noti\')]')
-                    
+
                     # 만약 위에서 오류가 안나면 ID/PW 오류.
                     # 나면, 이메일 인증 오류
                     raise InvalidAccountError('Invalid Account Information. Please enter correct' +\
