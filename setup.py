@@ -15,7 +15,7 @@ setup(
     version=version,
     description="티스토리 블로그 api client입니다.",
     install_requires=[
-        'flask',
+        'Flask',
         'requests'
     ],
     long_description=README,
