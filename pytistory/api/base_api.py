@@ -82,7 +82,7 @@ class BaseAPI:
             if result['tistory']['status'] == '200':
                 return result['tistory']
 
-        raise ParsingError('Status Code is not 200.\nresponse result: {}'.format(result))
+        raise ParsingError('Status Code is not 200.\nrequest : {} {}, {}\nresponse result: {}'.format(method, url, kwargs, result))
 
     @staticmethod
     def _get_url(kind, action):

@@ -180,7 +180,7 @@ class Post(BaseAPI):
         params['content'] = content
         params['slogan'] = slogan
 
-        response = self._perform('POST', url, params=params)
+        response = self._perform('POST', url, data=params)
 
         return response
 
@@ -238,7 +238,7 @@ class Post(BaseAPI):
 
         files = {'uploadedfile': open(uploaded_file, 'rb')}
 
-        response = self._perform('POST', url, params=params, files=files)
+        response = self._perform('POST', url, data=params, files=files)
 
         return response
 
@@ -267,6 +267,6 @@ class Post(BaseAPI):
 
         params['postId'] = post_id
 
-        response = self._perform('POST', url, params=params)
+        response = self._perform('POST', url, data=params)
 
         return response

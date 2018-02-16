@@ -109,7 +109,7 @@ class Comment(BaseAPI):
         if secret:
             params['secret'] = secret
 
-        return self._perform('POST', url, params=params)
+        return self._perform('POST', url, data=params)
 
     def modify(self, post_id, comment_id, content, blog_name=None, target_url=None,
                parent_id=None, secret=None):
@@ -152,7 +152,7 @@ class Comment(BaseAPI):
         if secret:
             params['secret'] = secret
 
-        return self._perform('POST', url, params=params)
+        return self._perform('POST', url, data=params)
 
     def delete(self, post_id, comment_id, blog_name=None, target_url=None):
         """comment/delete API 구현입니다.
@@ -182,4 +182,4 @@ class Comment(BaseAPI):
         params['postId'] = post_id
         params['commentId'] = comment_id
 
-        return self._perform('POST', url, params=params)
+        return self._perform('POST', url, data=params)

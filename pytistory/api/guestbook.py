@@ -77,7 +77,7 @@ class Guestbook(BaseAPI):
         if secret:
             params['secret'] = secret
 
-        return self._perform('POST', url, params=params)
+        return self._perform('POST', url, data=params)
 
     def modify(self, guestbook_id, content, blog_name=None,
                target_url=None, parent_id=None, secret=None):
@@ -117,7 +117,7 @@ class Guestbook(BaseAPI):
         if secret:
             params['secret'] = secret
 
-        return self._perform('POST', url, params=params)
+        return self._perform('POST', url, data=params)
 
     def delete(self, guestbook_id, blog_name=None, target_url=None):
         """guestbook/delete API 구현입니다.
@@ -144,4 +144,4 @@ class Guestbook(BaseAPI):
 
         params['guestbookId'] = guestbook_id
 
-        return self._perform('POST', url, params=params)
+        return self._perform('POST', url, data=params)

@@ -161,8 +161,6 @@ class PyTistory:
             except NoSuchWindowException:
                 current_url = ''
 
-            print('current_url: ' + current_url)
-
             # 비밀번호 변경하라는 창
             if current_url.split('?')[0].endswith('outdated'):
                 # 다음에 변경하기
