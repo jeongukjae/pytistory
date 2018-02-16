@@ -10,8 +10,9 @@ import time
 import requests
 
 from .api import Blog, Category, Post, Comment, Guestbook
-from .exceptions import (InvalidSectionError, InvalidNameError, OptionNotFoundError,
-                         EmailAuthError, WebDriverError, TokenNotFoundError)
+from .exceptions import (InvalidSectionError, InvalidNameError, ConfigurationError,
+                         OptionNotFoundError, EmailAuthError, WebDriverError, TokenNotFoundError,
+                         InvalidAccountError)
 from .callback import CallbackServer
 
 TISTORY_AUTHORIZE_URL = 'https://www.tistory.com/oauth/authorize'
@@ -138,7 +139,8 @@ class PyTistory:
         else:
             try:
                 from selenium import webdriver
-                from selenium.common.exceptions import WebDriverException, NoSuchWindowException
+                from selenium.common.exceptions import (WebDriverException, NoSuchWindowException,
+                                                        NoSuchElementException)
             except ImportError:
                 raise ImportError('Cannot import selenum.\n' +\
                     'The headless authentication option need selenium.')
@@ -159,14 +161,30 @@ class PyTistory:
             except NoSuchWindowException:
                 current_url = ''
 
+            print('current_url: ' + current_url)
+
             # 비밀번호 변경하라는 창
             if current_url.split('?')[0].endswith('outdated'):
                 # 다음에 변경하기
                 driver.find_element_by_xpath('//*[@id="passwordChangeForm"]/fieldset/div/a').click()
             elif current_url.endswith('auth/login'):
+                try:
+                    driver.find_element_by_xpath('//*[@id="authForm"]/fieldset' +\
+                        '/div/div[contains(@class, \'box_noti\')]')
+                    
+                    # 만약 위에서 오류가 안나면 ID/PW 오류.
+                    # 나면, 이메일 인증 오류
+                    raise InvalidAccountError('Invalid Account Information. Please enter correct' +\
+                        ' ID and PW.')
+                except NoSuchElementException:
+                    raise EmailAuthError('Email authentication is required to log in to Tistory.')
+                finally:
+                    process.terminate()
+                    process.join()
+            elif not current_url.startswith('http://0.0.0.0:5000'):
                 process.terminate()
                 process.join()
-                raise EmailAuthError('Email authentication is required to log in to Tistory.')
+                raise ConfigurationError('Invalid ID format or Invalid client key and secret.')
 
             driver.quit()
 

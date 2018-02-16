@@ -60,8 +60,6 @@ class CallbackServer:
             :rtype: str
             """
             access_token = request.args.get('access_token')
-            if access_token is None:
-                raise CallbackServerError('There is no access token in a request.')
 
             # set access token and shutdown server
             self.namespace.access_token = access_token

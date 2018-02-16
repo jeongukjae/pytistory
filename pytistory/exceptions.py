@@ -18,6 +18,11 @@ class InvalidNameError(ConfigurationError):
     """
     pass
 
+class InvalidAccountError(ConfigurationError):
+    """Tistory 로그인을 올바르지 않은 계정 정보일 때 일어나는 Exception입니다.
+    """
+    pass
+
 class EmailAuthError(ConfigurationError):
     """Tistory 로그인을 하면서 이메일 인증이 발생할 때 일어나는 Exception입니다.
     """
