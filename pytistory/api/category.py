@@ -30,7 +30,7 @@ class Category(BaseAPI):
             어떤 데이터가 넘어오는 지 알 수 있습니다.
         :rtype: dict
         """
-        url = self._get_url(self.kind, 'delete')
+        url = self._get_url(self.kind, 'list')
         params = self._get_default_params()
         self._set_blog_name(params, blog_name, target_url)
 

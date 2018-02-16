@@ -15,6 +15,8 @@ class TestPost(unittest.TestCase):
         self.tistory_id = os.environ.get('PYTISTORY_TISTORY_ID')
         self.tistory_password = os.environ.get('PYTISTORY_TISTORY_PASSWORD')
 
+        self.driver = webdriver.Chrome()
+
     def test001_최근_게시글_목록(self):
         data = self.pytistory.post.list(blog_name='test-blog-5532')
         self.assertEqual('1', data['item']['page'])
@@ -46,23 +48,42 @@ class TestPost(unittest.TestCase):
         self.assertIn('수정', post_response['item']['tags']['tag'])
 
         # post 삭제
-        driver = webdriver.Chrome()
-        driver.get('https://tistory.com/auth/login')
-        driver.find_element_by_name('loginId').send_keys(self.tistory_id)
-        driver.find_element_by_name('password').send_keys(self.tistory_password)
-        driver.find_element_by_xpath('//*[@id="authForm"]/fieldset/div/button').click()
+        self.driver.get('https://tistory.com/auth/login')
+        self.driver.find_element_by_name('loginId').send_keys(self.tistory_id)
+        self.driver.find_element_by_name('password').send_keys(self.tistory_password)
+        self.driver.find_element_by_xpath('//*[@id="authForm"]/fieldset/div/button').click()
 
-        if driver.current_url.split('?')[0].endswith('outdated'):
-            driver.find_element_by_xpath('//*[@id="passwordChangeForm"]/fieldset/div/a').click()
+        if self.driver.current_url.split('?')[0].endswith('outdated'):
+            self.driver.find_element_by_xpath('//*[@id="passwordChangeForm"]/fieldset/div/a').click()
         
-        driver.get('http://test-blog-5532.tistory.com/{0}'.format(post_id))
-        driver.find_element_by_xpath('//*[@id="mArticle"]/div/div[1]/span/span[2]/a[3]').click()
-        driver.switch_to.alert.accept()
-        driver.quit()
+        self.driver.get('http://test-blog-5532.tistory.com/{0}'.format(post_id))
+        self.driver.find_element_by_xpath('//*[@id="mArticle"]/div/div[1]/span/span[2]/a[3]').click()
+        self.driver.switch_to.alert.accept()
+    
+    def test005_파일_첨부_후_게시(self):
+        image_response = self.pytistory.post.attach('tests/test_image.png', blog_name='test-blog-5532')
+        response = self.pytistory.post.write('테스트 포스팅', blog_name='test-blog-5532',\
+            visibility=2, content='글 내용 {}'.format(image_response['replacer']),\
+            tag=['가나다', '라마바'])
+        post_response = self.pytistory.post.read(response['postId'], blog_name='test-blog-5532')
+        self.assertIn('img', post_response['item']['content'])
 
-    def test005_블로그_글_삭제(self):
+        # post 삭제
+        self.driver.get('https://tistory.com/auth/login')
+        self.driver.find_element_by_name('loginId').send_keys(self.tistory_id)
+        self.driver.find_element_by_name('password').send_keys(self.tistory_password)
+        self.driver.find_element_by_xpath('//*[@id="authForm"]/fieldset/div/button').click()
+
+        if self.driver.current_url.split('?')[0].endswith('outdated'):
+            self.driver.find_element_by_xpath('//*[@id="passwordChangeForm"]/fieldset/div/a').click()
+        
+        self.driver.get('http://test-blog-5532.tistory.com/{0}'.format(response['postId']))
+        self.driver.find_element_by_xpath('//*[@id="mArticle"]/div/div[1]/span/span[2]/a[3]').click()
+        self.driver.switch_to.alert.accept()
+
+    def test006_블로그_글_삭제(self):
         # 사전 협의가 안되어 있어서 삭제가 안되는게 정상이다.
         self.assertRaises(ParsingError, self.pytistory.post.delete, 1, blog_name='test-blog-5532')
 
     def tearDown(self):
-        pass
+        self.driver.quit()
