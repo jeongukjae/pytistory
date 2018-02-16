@@ -141,7 +141,7 @@ class PyTistory:
                 from selenium import webdriver
                 from selenium.common.exceptions import (WebDriverException, NoSuchWindowException,
                                                         NoSuchElementException)
-            except ImportError:
+            except (ImportError, ModuleNotFoundError):
                 raise ImportError('Cannot import selenum.\n' +\
                     'The headless authentication option need selenium.')
             try:
