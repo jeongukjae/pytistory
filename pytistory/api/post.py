@@ -1,11 +1,9 @@
 # -*- coding: utf8 -*-
 """Post 관련 API Client 구현입니다.
 """
-import warnings
 import datetime
 
 from .base_api import BaseAPI
-from ..exceptions import NoSpecifiedBlogError
 
 class Post(BaseAPI):
     """Post 관련 API Client 구현입니다.
@@ -48,14 +46,7 @@ class Post(BaseAPI):
         """
         url = self._get_url(self.kind, 'list')
         params = self._get_default_params()
-        if blog_name:
-            params['blogName'] = blog_name
-        elif target_url:
-            params['targetUrl'] = target_url
-            warnings.warn('A parameter `targetUrl` is deprecated.' +\
-                ' See also `http://www.tistory.com/guide/api/post.php`.')
-        else:
-            raise NoSpecifiedBlogError('There is no blog specified in parameters.')
+        self._set_blog_name(params, blog_name, target_url)
 
         response = self._perform('GET', url, params=params)
 
@@ -100,6 +91,7 @@ class Post(BaseAPI):
         """
         url = self._get_url(self.kind, 'write')
         params = self._get_default_params()
+        self._set_blog_name(params, blog_name, target_url)
 
         if isinstance(visibility, int) and visibility >= 0 and visibility <= 3:
             params['visibility'] = visibility
@@ -119,14 +111,6 @@ class Post(BaseAPI):
         else:
             raise TypeError('A tag must be a list.')
 
-        if blog_name:
-            params['blogName'] = blog_name
-        elif target_url:
-            params['targetUrl'] = target_url
-            warnings.warn('A parameter `targetUrl` is deprecated.' +\
-                ' See also `http://www.tistory.com/guide/api/post.php`.')
-        else:
-            raise NoSpecifiedBlogError('There is no blog specified in parameters.')
 
         params['title'] = title
         params['category'] = category
@@ -176,6 +160,7 @@ class Post(BaseAPI):
         """
         url = self._get_url(self.kind, 'modify')
         params = self._get_default_params()
+        self._set_blog_name(params, blog_name, target_url)
 
         if isinstance(visibility, int) and visibility >= 0 and visibility <= 3:
             params['visibility'] = visibility
@@ -187,14 +172,6 @@ class Post(BaseAPI):
             params['tag'] = ','.join(tag)
         else:
             raise TypeError('A tag must be a list.')
-        if blog_name:
-            params['blogName'] = blog_name
-        elif target_url:
-            params['targetUrl'] = target_url
-            warnings.warn('A parameter `targetUrl` is deprecated.' +\
-                ' See also `http://www.tistory.com/guide/api/post.php`.')
-        else:
-            raise NoSpecifiedBlogError('There is no blog specified in parameters.')
 
         params['title'] = title
         params['postId'] = post_id
@@ -227,15 +204,7 @@ class Post(BaseAPI):
         """
         url = self._get_url(self.kind, 'read')
         params = self._get_default_params()
-
-        if blog_name:
-            params['blogName'] = blog_name
-        elif target_url:
-            params['targetUrl'] = target_url
-            warnings.warn('A parameter `targetUrl` is deprecated.' +\
-                ' See also `http://www.tistory.com/guide/api/post.php`.')
-        else:
-            raise NoSpecifiedBlogError('There is no blog specified in parameters.')
+        self._set_blog_name(params, blog_name, target_url)
 
         params['postId'] = post_id
 
@@ -264,15 +233,7 @@ class Post(BaseAPI):
         """
         url = self._get_url(self.kind, 'attach')
         params = self._get_default_params()
-
-        if blog_name:
-            params['blogName'] = blog_name
-        elif target_url:
-            params['targetUrl'] = target_url
-            warnings.warn('A parameter `targetUrl` is deprecated.' +\
-                ' See also `http://www.tistory.com/guide/api/post.php`.')
-        else:
-            raise NoSpecifiedBlogError('There is no blog specified in parameters.')
+        self._set_blog_name(params, blog_name, target_url)
 
         files = {'uploadedfile': open(uploaded_file, 'rb')}
 
@@ -301,15 +262,7 @@ class Post(BaseAPI):
         """
         url = self._get_url(self.kind, 'delete')
         params = self._get_default_params()
-
-        if blog_name:
-            params['blogName'] = blog_name
-        elif target_url:
-            params['targetUrl'] = target_url
-            warnings.warn('A parameter `targetUrl` is deprecated.' +\
-                ' See also `http://www.tistory.com/guide/api/post.php`.')
-        else:
-            raise NoSpecifiedBlogError('There is no blog specified in parameters.')
+        self._set_blog_name(params, blog_name, target_url)
 
         params['postId'] = post_id
 

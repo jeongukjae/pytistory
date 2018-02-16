@@ -2,10 +2,7 @@
 #pylint: disable=too-many-arguments
 """Comment 관련 API Client 구현입니다.
 """
-import warnings
-
 from .base_api import BaseAPI
-from ..exceptions import NoSpecifiedBlogError
 
 class Comment(BaseAPI):
     """Comment 관련 API Client 구현입니다.
@@ -46,15 +43,7 @@ class Comment(BaseAPI):
         """
         url = self._get_url(self.kind, 'list')
         params = self._get_default_params()
-
-        if blog_name:
-            params['blogName'] = blog_name
-        elif target_url:
-            params['targetUrl'] = target_url
-            warnings.warn('A parameter `targetUrl` is deprecated.' +\
-                ' See also `http://www.tistory.com/guide/api/comment.php`.')
-        else:
-            raise NoSpecifiedBlogError('There is no blog specified in parameters.')
+        self._set_blog_name(params, blog_name, target_url)
 
         params['postId'] = post_id
 
@@ -79,15 +68,7 @@ class Comment(BaseAPI):
         """
         url = self._get_url(self.kind, 'newest')
         params = self._get_default_params()
-
-        if blog_name:
-            params['blogName'] = blog_name
-        elif target_url:
-            params['targetUrl'] = target_url
-            warnings.warn('A parameter `targetUrl` is deprecated.' +\
-                ' See also `http://www.tistory.com/guide/api/comment.php`.')
-        else:
-            raise NoSpecifiedBlogError('There is no blog specified in parameters.')
+        self._set_blog_name(params, blog_name, target_url)
 
         return self._perform('GET', url, params=params)
 
@@ -118,15 +99,7 @@ class Comment(BaseAPI):
         """
         url = self._get_url(self.kind, 'write')
         params = self._get_default_params()
-
-        if blog_name:
-            params['blogName'] = blog_name
-        elif target_url:
-            params['targetUrl'] = target_url
-            warnings.warn('A parameter `targetUrl` is deprecated.' +\
-                ' See also `http://www.tistory.com/guide/api/comment.php`.')
-        else:
-            raise NoSpecifiedBlogError('There is no blog specified in parameters.')
+        self._set_blog_name(params, blog_name, target_url)
 
         params['postId'] = post_id
         params['content'] = content
@@ -168,15 +141,7 @@ class Comment(BaseAPI):
         """
         url = self._get_url(self.kind, 'modify')
         params = self._get_default_params()
-
-        if blog_name:
-            params['blogName'] = blog_name
-        elif target_url:
-            params['targetUrl'] = target_url
-            warnings.warn('A parameter `targetUrl` is deprecated.' +\
-                ' See also `http://www.tistory.com/guide/api/comment.php`.')
-        else:
-            raise NoSpecifiedBlogError('There is no blog specified in parameters.')
+        self._set_blog_name(params, blog_name, target_url)
 
         params['postId'] = post_id
         params['commentId'] = comment_id
@@ -212,15 +177,7 @@ class Comment(BaseAPI):
         """
         url = self._get_url(self.kind, 'delete')
         params = self._get_default_params()
-
-        if blog_name:
-            params['blogName'] = blog_name
-        elif target_url:
-            params['targetUrl'] = target_url
-            warnings.warn('A parameter `targetUrl` is deprecated.' +\
-                ' See also `http://www.tistory.com/guide/api/comment.php`.')
-        else:
-            raise NoSpecifiedBlogError('There is no blog specified in parameters.')
+        self._set_blog_name(params, blog_name, target_url)
 
         params['postId'] = post_id
         params['commentId'] = comment_id

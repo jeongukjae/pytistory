@@ -1,10 +1,7 @@
 # -*- coding: utf8 -*-
 """Category 관련 API Client 구현입니다.
 """
-import warnings
-
 from .base_api import BaseAPI
-from ..exceptions import NoSpecifiedBlogError
 
 class Category(BaseAPI):
     """Category 관련 API Client 구현입니다.
@@ -35,14 +32,6 @@ class Category(BaseAPI):
         """
         url = self._get_url(self.kind, 'delete')
         params = self._get_default_params()
-
-        if blog_name:
-            params['blogName'] = blog_name
-        elif target_url:
-            params['targetUrl'] = target_url
-            warnings.warn('A parameter `targetUrl` is deprecated.' +\
-                ' See also `http://www.tistory.com/guide/api/category.php`.')
-        else:
-            raise NoSpecifiedBlogError('There is no blog specified in parameters.')
+        self._set_blog_name(params, blog_name, target_url)
 
         return self._perform('GET', url, params=params)

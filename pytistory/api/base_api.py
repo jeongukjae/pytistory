@@ -6,20 +6,33 @@
 PyTistory에서 활용하는 API 클래스의 형태를 정의합니다.
 """
 import json
+import warnings
 import requests
 
-from ..exceptions import ParsingError, TokenNotFoundError
+from ..exceptions import ParsingError, TokenNotFoundError, NoSpecifiedBlogError
 
 class BaseAPI:
     """다른 API들은 이 클래스를 상속받아 이용합니다.
 
     공통적으로 쓸 함수들을 포함합니다.
     """
+    kind = ''
+
     def __init__(self, access_token=None):
         self.access_token = None
 
         if access_token:
             self.set_access_token(access_token)
+
+    def _set_blog_name(self, params, blog_name, target_url):
+        if blog_name:
+            params['blogName'] = blog_name
+        elif target_url:
+            params['targetUrl'] = target_url
+            warnings.warn('A parameter `targetUrl` is deprecated.' +\
+                ' See also `http://www.tistory.com/guide/api/{0}.php`.'.format(self.kind))
+        else:
+            raise NoSpecifiedBlogError('There is no blog specified in parameters.')
 
     def set_access_token(self, access_token):
         """Access Token을 설정합니다.

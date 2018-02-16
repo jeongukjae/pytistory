@@ -2,10 +2,7 @@
 #pylint: disable=too-many-arguments
 """Guestbook 관련 API Client 구현입니다.
 """
-import warnings
-
 from .base_api import BaseAPI
-from ..exceptions import NoSpecifiedBlogError
 
 class Guestbook(BaseAPI):
     """Guestbook 관련 API Client 구현입니다.
@@ -42,15 +39,7 @@ class Guestbook(BaseAPI):
         """
         url = self._get_url(self.kind, 'list')
         params = self._get_default_params()
-
-        if blog_name:
-            params['blogName'] = blog_name
-        elif target_url:
-            params['targetUrl'] = target_url
-            warnings.warn('A parameter `targetUrl` is deprecated.' +\
-                ' See also `http://www.tistory.com/guide/api/guestbook.php`.')
-        else:
-            raise NoSpecifiedBlogError('There is no blog specified in parameters.')
+        self._set_blog_name(params, blog_name, target_url)
 
         return self._perform('GET', url, params=params)
 
@@ -79,15 +68,7 @@ class Guestbook(BaseAPI):
         """
         url = self._get_url(self.kind, 'write')
         params = self._get_default_params()
-
-        if blog_name:
-            params['blogName'] = blog_name
-        elif target_url:
-            params['targetUrl'] = target_url
-            warnings.warn('A parameter `targetUrl` is deprecated.' +\
-                ' See also `http://www.tistory.com/guide/api/guestbook.php`.')
-        else:
-            raise NoSpecifiedBlogError('There is no blog specified in parameters.')
+        self._set_blog_name(params, blog_name, target_url)
 
         params['content'] = content
 
@@ -126,15 +107,7 @@ class Guestbook(BaseAPI):
         """
         url = self._get_url(self.kind, 'modify')
         params = self._get_default_params()
-
-        if blog_name:
-            params['blogName'] = blog_name
-        elif target_url:
-            params['targetUrl'] = target_url
-            warnings.warn('A parameter `targetUrl` is deprecated.' +\
-                ' See also `http://www.tistory.com/guide/api/guestbook.php`.')
-        else:
-            raise NoSpecifiedBlogError('There is no blog specified in parameters.')
+        self._set_blog_name(params, blog_name, target_url)
 
         params['guestbookId'] = guestbook_id
         params['content'] = content
@@ -167,15 +140,7 @@ class Guestbook(BaseAPI):
         """
         url = self._get_url(self.kind, 'delete')
         params = self._get_default_params()
-
-        if blog_name:
-            params['blogName'] = blog_name
-        elif target_url:
-            params['targetUrl'] = target_url
-            warnings.warn('A parameter `targetUrl` is deprecated.' +\
-                ' See also `http://www.tistory.com/guide/api/guestbook.php`.')
-        else:
-            raise NoSpecifiedBlogError('There is no blog specified in parameters.')
+        self._set_blog_name(params, blog_name, target_url)
 
         params['guestbookId'] = guestbook_id
 
