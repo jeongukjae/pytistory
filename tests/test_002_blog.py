@@ -9,7 +9,6 @@ class TestBlog(unittest.TestCase):
 
     def test001_블로그_정보_받아오기(self):
         data = self.pytistory.blog.info()
-
         self.assertIn('item', data)
 
     def tearDown(self):

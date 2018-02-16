@@ -97,10 +97,12 @@ class Post(BaseAPI):
             params['visibility'] = visibility
         else:
             raise TypeError('A visibility must be 0, 1, 2, or 3.')
-        if isinstance(published, datetime.datetime):
-            params['published'] = published.timestamp()
-        else:
-            raise TypeError('A published must be a datetime object')
+
+        if published:
+            if isinstance(published, datetime.datetime):
+                params['published'] = published.timestamp()
+            else:
+                raise TypeError('A published must be a datetime object')
 
         # dangerous-default-value
         if tag is None:
@@ -110,7 +112,6 @@ class Post(BaseAPI):
             params['tag'] = ','.join(tag)
         else:
             raise TypeError('A tag must be a list.')
-
 
         params['title'] = title
         params['category'] = category
