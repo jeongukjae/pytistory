@@ -13,7 +13,7 @@ class TestCategory(unittest.TestCase):
         self.pytistory.configure()
 
     def test001_최근_게시글_목록(self):
-        self.pytistory.category.list()
+        self.pytistory.category.list(blog_name='test-blog-5532')
 
     def tearDown(self):
         pass
