@@ -21,7 +21,6 @@ TISTORY_AUTHORIZE_PARAMS = '?client_id={0}&response_type=token' +\
 
 CONFIG_SECTION_NAME = 'pytistory'
 CONFIG_CLIENT_ID = 'client_id'
-CONFIG_SECRET_KEY = 'secret_key'
 CONFIG_ACCESS_TOKEN = 'access_token'
 CONFIG_TISTORY_ID = 'tistory_id'
 CONFIG_TISTORY_PASSWORD = 'tistory_password'
@@ -52,7 +51,6 @@ class PyTistory:
     def __init__(self):
         self.file_name = ''
         self.client_id = ''
-        self.secret_key = ''
         self.access_token = ''
         self.tistory_id = ''
         self.tistory_password = ''
@@ -86,9 +84,6 @@ class PyTistory:
                 format(CONFIG_SECTION_NAME, self.file_name))
         if CONFIG_CLIENT_ID not in config[CONFIG_SECTION_NAME]:
             raise InvalidNameError('Cannot find a tistory client id in `{}`.'\
-                .format(self.file_name))
-        if CONFIG_SECRET_KEY not in config[CONFIG_SECTION_NAME]:
-            raise InvalidNameError('Cannot find a tistory secret key in `{}`.'\
                 .format(self.file_name))
         if headless_auth:
             if CONFIG_TISTORY_ID not in config[CONFIG_SECTION_NAME]:
@@ -182,7 +177,7 @@ class PyTistory:
             elif not current_url.startswith('http://0.0.0.0:5000'):
                 process.terminate()
                 process.join()
-                raise ConfigurationError('Invalid ID format or Invalid client key and secret.')
+                raise ConfigurationError('Invalid ID format or Invalid client key.')
 
             driver.quit()
 
@@ -199,24 +194,22 @@ class PyTistory:
 
     #pylint: disable=too-many-arguments
     def configure(self, configure_file_name=None,
-                  client_id=None, secret_key=None,
+                  client_id=None,
                   tistory_id=None, tistory_password=None):
         """Tistory OAuth 2.0 인증을 실행하는 함수입니다.
 
-        `Tistory Open API OAuth 인증 <http://www.tistory.com/guide/api/oauth>`_에
+        `Tistory Open API OAuth 인증 <http://www.tistory.com/guide/api/oauth>`_ 에
         해당하는 구현이고, Client-side flow방식을 이용하였습니다.
-        티스토리 client_id, secret_key 값을 파일에서 읽거나,
+        티스토리 client_id 값을 파일에서 읽거나,
         인자에서 받거나, 환경변수에서 받아서 인증을 하게 됩니다.
 
-        환경 변수의 KEY는 `PYTISTORY_CLIENT_ID`, `PYTISTORY_SECRET_KEY` 를
+        환경 변수의 KEY는 `PYTISTORY_CLIENT_ID` 를
         사용합니다.
 
         :param configure_file_name: configure 파일 이름, defaults to None
         :type configure_file_name: str, optional
         :param client_id: 티스토리 OAuth를 위한 client_id 값, defaults to None
         :type client_id: str, optional
-        :param secret_key: 티스토리 OAuth를 위한 secret_key 값, defaults to None
-        :type secret_key: str, optional
         :param tistory_id: 티스토리 아이디입니다., defaults to None
         :type tistory_id: str, optional
         :param tistory_password: 티스토리 비밀번호입니다., defaults to None
@@ -231,23 +224,20 @@ class PyTistory:
             config = self._read_configuration_file(headless_auth)
 
             self.client_id = config[CONFIG_SECTION_NAME][CONFIG_CLIENT_ID]
-            self.secret_key = config[CONFIG_SECTION_NAME][CONFIG_SECRET_KEY]
             self.tistory_id = config[CONFIG_SECTION_NAME][CONFIG_TISTORY_ID]
             self.tistory_password = config[CONFIG_SECTION_NAME][CONFIG_TISTORY_PASSWORD]
             if self.tistory_id and self.tistory_password:
                 headless_auth = True
-        elif client_id is not None and secret_key is not None:
+        elif client_id is not None:
             self.client_id = client_id
-            self.secret_key = secret_key
             if tistory_id is not None and tistory_password is not None:
                 headless_auth = True
                 self.tistory_id = tistory_id
                 self.tistory_password = tistory_password
         else:
             self.client_id = os.environ.get('PYTISTORY_CLIENT_ID')
-            self.secret_key = os.environ.get('PYTISTORY_SECRET_KEY')
 
-            if self.client_id is None or self.secret_key is None:
+            if self.client_id is None:
                 raise OptionNotFoundError('Cannot configure a PyTistory.')
 
             self.tistory_id = os.environ.get('PYTISTORY_TISTORY_ID')
