@@ -2,7 +2,7 @@
 import unittest
 
 from pytistory import PyTistory
-from pytistory.exceptions import ConfigurationError
+from pytistory.exceptions import ConfigurationError, TokenNotFoundError
 
 class TestOAuth(unittest.TestCase):
     def setUp(self):
@@ -16,6 +16,10 @@ class TestOAuth(unittest.TestCase):
         pytistory = PyTistory()
         self.assertRaises(ConfigurationError, pytistory.configure, client_id='asdf', \
             secret_key='asdf', tistory_id='asdf', tistory_password='asdf')
+
+    def test003_토큰이_설정되지_않았을_때(self):
+        pytistory = PyTistory()
+        self.assertRaises(TokenNotFoundError, pytistory.blog.info)
 
     def tearDown(self):
         pass

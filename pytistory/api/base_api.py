@@ -17,12 +17,7 @@ class BaseAPI:
     공통적으로 쓸 함수들을 포함합니다.
     """
     kind = ''
-
-    def __init__(self, access_token=None):
-        self.access_token = None
-
-        if access_token:
-            self.set_access_token(access_token)
+    access_token = None
 
     def _set_blog_name(self, params, blog_name, target_url):
         if blog_name:

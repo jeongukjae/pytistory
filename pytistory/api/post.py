@@ -236,9 +236,9 @@ class Post(BaseAPI):
         params = self._get_default_params()
         self._set_blog_name(params, blog_name, target_url)
 
-        files = {'uploadedfile': open(uploaded_file, 'rb')}
-
-        response = self._perform('POST', url, data=params, files=files)
+        with open(uploaded_file, 'rb') as f:
+            files = {'uploadedfile': f}
+            response = self._perform('POST', url, data=params, files=files)
 
         return response
 
