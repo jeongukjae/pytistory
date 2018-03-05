@@ -15,7 +15,7 @@ class TestOAuth(unittest.TestCase):
     def test002_잘못된_CLIENT_ID_와_SECRET_KEY(self):
         pytistory = PyTistory()
         self.assertRaises(ConfigurationError, pytistory.configure, client_id='asdf', \
-            secret_key='asdf', tistory_id='asdf', tistory_password='asdf')
+            tistory_id='asdf', tistory_password='asdf')
 
     def test003_토큰이_설정되지_않았을_때(self):
         pytistory = PyTistory()
