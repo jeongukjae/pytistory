@@ -5,6 +5,10 @@
 """티스토리 OAuth 인증을 위한 로컬서버입니다.
 """
 from flask import Flask, request
+import logging
+
+log = logging.getLogger('werkzeug')
+log.setLevel(logging.ERROR)
 
 HASH_TO_ARGS = """
 <script>
@@ -58,9 +62,13 @@ class CallbackServer:
             :rtype: str
             """
             access_token = request.args.get('access_token')
+            error = request.args.get('error')
+            error_description = request.args.get('error_description')
 
             # set access token and shutdown server
             self.namespace.access_token = access_token
+            self.namespace.error = error
+            self.namespace.error_description = error_description
             self.event.set()
             self.shutdown_server()
 

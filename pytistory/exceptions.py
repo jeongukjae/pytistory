@@ -52,3 +52,4 @@ class ParsingError(Exception):
 class NoSpecifiedBlogError(Exception):
     """명시된 블로그가 없을때 일어나는 에러입니다.
     """
+    pass

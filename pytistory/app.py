@@ -182,13 +182,13 @@ class PyTistory:
             driver.quit()
 
         event.wait()
-        if hasattr(namespace, 'access_token'):
+        if hasattr(namespace, 'access_token') and namespace.access_token: #pylint: disable=E1101
             self.access_token = namespace.access_token #pylint: disable=E1101
             # disable the pylint message E1101 `Instance of 'Namespace'
             # has no 'access_token' member'`
             # checked in if statement
         else:
-            raise TokenNotFoundError('Cannot get the access token from a server.')
+            raise TokenNotFoundError('Cannot get the access token from a server. :' + namespace.error_description) #pylint: disable=E1101
 
         process.join()
 
