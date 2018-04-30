@@ -2,15 +2,12 @@
 """PyTistory CLI 기능 구현하는 모듈입니다.
 """
 import argparse
+import json
+
+from . import PyTistory
 
 def parse_arguments():
     parser = argparse.ArgumentParser(prog='pytistory', description="Tistory Blog API Client")
-
-    parser.add_argument('--headless', help="Headless 브라우저를 이용해 설정합니다.", action="store_true")
-    parser.add_argument('--id', help="티스토리 아이디 (Headless 옵션에서 사용합니다.)")
-    parser.add_argument('--password', help="티스토리 패스워드 (실행 후 입력합니다, Headless 옵션에서 사용합니다.)")
-    parser.add_argument('--client_id', help="티스토리 오픈 API Client ID (Headless 옵션에서 사용합니다.)")
-    parser.add_argument('--access_token', help="티스토리 오픈 API Access Token (Headless 옵션에서 사용합니다.)")
 
     subparsers = parser.add_subparsers(dest='kind', help='commands')
     subparsers.required = True
@@ -37,4 +34,27 @@ def parse_arguments():
     guestbook_parser = subparsers.add_parser('guestbook', help='Guestbook API Client')
     guestbook_parser.add_argument('action', choices=['list', 'write', 'modify', 'delete'], type=str)
 
+    parser.add_argument('--with-browser', help="브라우저를 이용해서 설정합니다.", action="store_true")
+    parser.add_argument('--headless', help="Headless 브라우저를 이용해 설정합니다.", action="store_true")
+    parser.add_argument('--id', help="티스토리 아이디 (Headless 옵션에서 사용합니다.)")
+    parser.add_argument('--password', help="티스토리 패스워드 (실행 후 입력합니다, Headless 옵션에서 사용합니다.)")
+    parser.add_argument('--client_id', help="티스토리 오픈 API Client ID (Headless 옵션에서 사용합니다.)")
+    parser.add_argument('--access_token', help="티스토리 오픈 API Access Token (Headless 옵션에서 사용합니다.)")
+
     return parser.parse_args()
+
+def main():
+    """PyTistory CLI를 시작합니다.
+    """
+    args = parse_arguments()
+
+    pytistory = PyTistory()
+
+    if args.headless:
+        print('headless')
+    elif args.with_browser:
+        pytistory.configure(with_browser=True)
+
+    result = pytistory.__getattribute__(args.kind).__getattribute__(args.action)()
+
+    print(json.dumps(result, ensure_ascii=False, indent=2))

@@ -195,7 +195,8 @@ class PyTistory:
     #pylint: disable=too-many-arguments
     def configure(self, configure_file_name=None,
                   client_id=None,
-                  tistory_id=None, tistory_password=None):
+                  tistory_id=None, tistory_password=None,
+                  with_browser=False):
         """Tistory OAuth 2.0 인증을 실행하는 함수입니다.
 
         `Tistory Open API OAuth 인증 <http://www.tistory.com/guide/api/oauth>`_ 에
@@ -214,37 +215,45 @@ class PyTistory:
         :type tistory_id: str, optional
         :param tistory_password: 티스토리 비밀번호입니다., defaults to None
         :type tistory_password: str, optional
+        :param with_browser: 브라우저를 이용하여 설정합니다., defaults to False
+        :type with_browser: bool, optional
         :raises OptionNotFoundError: 인증 과정에서 아무런 인증 옵션이 없을 때 일어나는 에러입니다.
         """
         headless_auth = False
 
-        if configure_file_name is not None:
-            # 파일에서 설정읽기
-            self.file_name = configure_file_name
-            config = self._read_configuration_file(headless_auth)
+        if not with_browser:
+            if configure_file_name is not None:
+                # 파일에서 설정읽기
+                self.file_name = configure_file_name
+                config = self._read_configuration_file(headless_auth)
 
-            self.client_id = config[CONFIG_SECTION_NAME][CONFIG_CLIENT_ID]
-            self.tistory_id = config[CONFIG_SECTION_NAME][CONFIG_TISTORY_ID]
-            self.tistory_password = config[CONFIG_SECTION_NAME][CONFIG_TISTORY_PASSWORD]
-            if self.tistory_id and self.tistory_password:
-                headless_auth = True
-        elif client_id is not None:
-            self.client_id = client_id
-            if tistory_id is not None and tistory_password is not None:
-                headless_auth = True
-                self.tistory_id = tistory_id
-                self.tistory_password = tistory_password
+                self.client_id = config[CONFIG_SECTION_NAME][CONFIG_CLIENT_ID]
+                self.tistory_id = config[CONFIG_SECTION_NAME][CONFIG_TISTORY_ID]
+                self.tistory_password = config[CONFIG_SECTION_NAME][CONFIG_TISTORY_PASSWORD]
+                if self.tistory_id and self.tistory_password:
+                    headless_auth = True
+            elif client_id is not None:
+                self.client_id = client_id
+                if tistory_id is not None and tistory_password is not None:
+                    headless_auth = True
+                    self.tistory_id = tistory_id
+                    self.tistory_password = tistory_password
+            else:
+                self.client_id = os.environ.get('PYTISTORY_CLIENT_ID')
+
+                if self.client_id is None:
+                    raise OptionNotFoundError('Cannot configure a PyTistory.')
+
+                self.tistory_id = os.environ.get('PYTISTORY_TISTORY_ID')
+                self.tistory_password = os.environ.get('PYTISTORY_TISTORY_PASSWORD')
+
+                if self.tistory_id and self.tistory_password:
+                    headless_auth = True
         else:
-            self.client_id = os.environ.get('PYTISTORY_CLIENT_ID')
-
-            if self.client_id is None:
-                raise OptionNotFoundError('Cannot configure a PyTistory.')
-
-            self.tistory_id = os.environ.get('PYTISTORY_TISTORY_ID')
-            self.tistory_password = os.environ.get('PYTISTORY_TISTORY_PASSWORD')
-
-            if self.tistory_id and self.tistory_password:
-                headless_auth = True
+            if client_id:
+                self.client_id = client_id
+            else:
+                raise ConfigurationError("Cannot find a client id.")
 
         # access token 받아오기
         self._set_access_token(headless_auth)
