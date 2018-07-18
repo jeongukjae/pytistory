@@ -127,13 +127,12 @@ class PyTistory:
                 target=callback_process, args=(namespace, event))
             process.start()
 
-            while not self._is_listening():
-                time.sleep(0.1)
-
-            request_uri = TISTORY_AUTHORIZE_URL + \
-                TISTORY_AUTHORIZE_PARAMS.format(self.client_id)
-
             if not self.__TESTING__:
+                while not self._is_listening():
+                    time.sleep(0.1)
+
+                request_uri = TISTORY_AUTHORIZE_URL + \
+                    TISTORY_AUTHORIZE_PARAMS.format(self.client_id)
                 webbrowser.open_new(request_uri)
 
             event.wait()
