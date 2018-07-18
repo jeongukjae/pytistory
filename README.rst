@@ -7,6 +7,8 @@ PyTistory
   :target: https://travis-ci.org/JeongUkJae/pytistory
 .. image:: https://codecov.io/gh/JeongUkJae/pytistory/branch/master/graph/badge.svg
   :target: https://codecov.io/gh/JeongUkJae/pytistory
+.. image:: https://img.shields.io/pypi/v/pytistory.svg
+  :target: https://pypi.org/project/pytistory
 
 
 Installation
