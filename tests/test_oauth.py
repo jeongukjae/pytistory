@@ -88,10 +88,10 @@ class TestOAuth(unittest.TestCase):
         pytistory.__TESTING__ = True
         pytistory.configure(client_id='some-client-id')
 
-        process.join()
-
         self.assertEqual(pytistory.access_token,
                          'some-access-token', 'Access Token 설정 실패')
+
+        process.join()
 
     def test_callback_server를_이용한_인증_에러(self):
         process = multiprocessing.Process(target=send_access_token_error)
@@ -110,6 +110,9 @@ def send_access_token():
         time.sleep(0.1)
 
     resp = requests.get(
+        'http://0.0.0.0:5000/callback#access_token=some-access-token&state=some-state')
+
+    resp = requests.get(
         'http://0.0.0.0:5000/callback_modified?access_token=some-access-token&state=some-state')
 
     return resp
@@ -118,6 +121,9 @@ def send_access_token():
 def send_access_token_error():
     while not PyTistory._is_listening():
         time.sleep(0.1)
+
+    resp = requests.get(
+        'http://0.0.0.0:5000/callback#access_token=some-access-token&state=some-state')
 
     resp = requests.get(
         'http://0.0.0.0:5000/callback_modified?access_token=&state=some-state')
