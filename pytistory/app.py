@@ -16,14 +16,15 @@ from .exceptions import (InvalidSectionError, InvalidNameError, ConfigurationErr
 from .callback import CallbackServer
 
 TISTORY_AUTHORIZE_URL = 'https://www.tistory.com/oauth/authorize'
-TISTORY_AUTHORIZE_PARAMS = '?client_id={0}&response_type=token' +\
-    '&redirect_uri=http://0.0.0.0:5000/callback'
+TISTORY_AUTHORIZE_PARAMS = '?client_id={0}&redirect_uri=http://0.0.0.0:5000/callback&response_type=token'
 
 CONFIG_SECTION_NAME = 'pytistory'
 CONFIG_CLIENT_ID = 'client_id'
 CONFIG_ACCESS_TOKEN = 'access_token'
 CONFIG_TISTORY_ID = 'tistory_id'
 CONFIG_TISTORY_PASSWORD = 'tistory_password'
+
+DEFAULT_CONFIG_FILE_NAME = '~/.pytistory/credentials.ini'
 
 
 def callback_process(namespace, event):
@@ -52,51 +53,17 @@ class PyTistory:
     # 해당 클래스의 멤버를 통해 api를 부르므로, too-few-public-methods는 체크할 필요가 없다.
 
     def __init__(self):
-        self.file_name = ''
-        self.client_id = ''
-        self.access_token = ''
-        self.tistory_id = ''
-        self.tistory_password = ''
+        self.client_id = None
+        self.tistory_id = None
+        self.tistory_password = None
+
+        self.access_token = None
 
         self.blog = Blog()
         self.post = Post()
         self.category = Category()
         self.comment = Comment()
         self.guestbook = Guestbook()
-
-    def _read_configuration_file(self, headless_auth=False):
-        """Configuration File을 읽고, ConfigParser를 반환합니다.
-
-        self.file_name에 해당하는 파일을 읽고, 해당 파일의 설정값들을 반환합니다.
-        만약, :class:`PyTistory`에서 원하는 내용의 설정 키값들이 없다면, Exception을
-        일으킵니다.
-
-        :param headless_auth: Headless 브라우저를 사용해서 인증을 시도할 때 이 인자를 사용합니다., defaults to False
-        :param headless_auth: bool, optional
-        :raises InvalidSectionError: 설정파일에서 pytistory 섹션을 찾을 수 없을 때 일어납니다.
-        :raises InvalidNameError: pytistory 섹션에서 client_id 키를 찾을 수 없을 때 일어납니다.
-        :return: 파일에서 읽어들인 config를 반환합니다.
-        :rtype: :class:`configparser.ConfigParser`
-        """
-        config = configparser.ConfigParser()
-
-        config.read(self.file_name)
-
-        if CONFIG_SECTION_NAME not in config:
-            raise InvalidSectionError('Cannot find a `{}` section in `{}`.'.
-                                      format(CONFIG_SECTION_NAME, self.file_name))
-        if CONFIG_CLIENT_ID not in config[CONFIG_SECTION_NAME]:
-            raise InvalidNameError('Cannot find a tistory client id in `{}`.'
-                                   .format(self.file_name))
-        if headless_auth:
-            if CONFIG_TISTORY_ID not in config[CONFIG_SECTION_NAME]:
-                raise InvalidNameError('Cannot find a tistory user id in `{}`.'
-                                       .format(self.file_name))
-            if CONFIG_TISTORY_PASSWORD not in config[CONFIG_SECTION_NAME]:
-                raise InvalidNameError('Cannot find a tistory password in `{}`.'
-                                       .format(self.file_name))
-
-        return config
 
     @staticmethod
     def _is_listening():
@@ -115,100 +82,117 @@ class PyTistory:
 
         :param headless_auth: Headless 브라우저를 사용해서 인증을 시도할 때 이 인자를 사용합니다.
         :param headless_auth: bool
-        :raises ImportError: selenium을 import할 수 없는 경우입니다.
-        :raises WebDriverError: Headless Chrome을 사용할 수 없는 경우입니다.
         :raises EmailAuthError: 티스토리 인증 중 이메일 인증이 필요한 경우입니다.
         :raises TokenNotFoundError: 만약 access_token이 정상적으로 받아와지지 않았을 경우입니다.
         """
-        multiprocessing_manager = multiprocessing.Manager()
-        namespace = multiprocessing_manager.Namespace()
-        event = multiprocessing.Event()
+        if headless_auth:
+            session = requests.Session()
+            resp = session.post('https://www.tistory.com/auth/login', data=dict({
+                'redirectUrl': 'https://www.tistory.com/oauth/authorize?client_id={}&redirect_uri=http://0.0.0.0:5000/callback&response_type=token'.format(self.client_id),
+                'loginId': self.tistory_id,
+                'password': self.tistory_password,
+                'rememberLoginId': 1
+            }), allow_redirects=False)
 
-        process = multiprocessing.Process(
-            target=callback_process, args=(namespace, event))
-        process.start()
+            if resp.status_code != 302:
+                raise ConfigurationError("Cannot Sign into Tistory")
 
-        while not self._is_listening():
-            time.sleep(0.1)
+            resp = session.get(
+                'https://www.tistory.com/oauth/authorize?client_id={}&redirect_uri=http://0.0.0.0:5000/callback&response_type=token'.format(self.client_id), allow_redirects=False)
 
-        request_uri = TISTORY_AUTHORIZE_URL + \
-            TISTORY_AUTHORIZE_PARAMS.format(self.client_id)
-
-        if not headless_auth:
-            webbrowser.open_new(request_uri)
-        else:
-            try:
-                from selenium import webdriver
-                from selenium.common.exceptions import (WebDriverException, NoSuchWindowException,
-                                                        NoSuchElementException)
-            except (ImportError, ModuleNotFoundError):
-                raise ImportError('Cannot import selenum.\n' +
-                                  'The headless authentication option need selenium.')
-            try:
-                options = webdriver.ChromeOptions()
-                options.add_argument('headless')
-                driver = webdriver.Chrome(options=options)
-            except WebDriverException:
-                raise WebDriverError(
-                    'Cannot open Chrome Headless. Please install Chrome Headless.')
-
-            driver.get(request_uri)
-            driver.find_element_by_name('loginId').send_keys(self.tistory_id)
-            driver.find_element_by_name(
-                'password').send_keys(self.tistory_password)
-            driver.find_element_by_xpath(
-                '//*[@id="authForm"]/fieldset/div/button').click()
-
-            try:
-                current_url = driver.current_url
-            except NoSuchWindowException:
-                current_url = ''
-
-            # 비밀번호 변경하라는 창
-            if current_url.split('?')[0].endswith('outdated'):
-                # 다음에 변경하기
-                driver.find_element_by_xpath(
-                    '//*[@id="passwordChangeForm"]/fieldset/div/a').click()
-            elif current_url.endswith('auth/login'):
-                try:
-                    driver.find_element_by_xpath('//*[@id="authForm"]/fieldset' +
-                                                 '/div/div[contains(@class, \'box_noti\')]')
-
-                    # 만약 위에서 오류가 안나면 ID/PW 오류.
-                    # 나면, 이메일 인증 오류
-                    raise InvalidAccountError('Invalid Account Information. Please enter correct' +
-                                              ' ID and PW.')
-                except NoSuchElementException:
-                    raise EmailAuthError(
-                        'Email authentication is required to log in to Tistory.')
-                finally:
-                    process.terminate()
-                    process.join()
-            elif not current_url.startswith('http://0.0.0.0:5000'):
-                process.terminate()
-                process.join()
+            if resp.status_code != 302 or 'Location' not in resp.headers:
                 raise ConfigurationError(
-                    'Invalid ID format or Invalid client key.')
+                    "Cannot get access token. try configure with browser")
 
-            driver.quit()
+            location = resp.headers['Location']
+            params = list(map(lambda x: x.split('='),
+                              location.split('#')[1].split('&')))
 
-        event.wait()
-        if hasattr(namespace, 'access_token') and namespace.access_token:  # pylint: disable=E1101
-            self.access_token = namespace.access_token  # pylint: disable=E1101
-            # disable the pylint message E1101 `Instance of 'Namespace'
-            # has no 'access_token' member'`
-            # checked in if statement
+            for param in params:
+                if param[0] == 'access_token':
+                    self.access_token = param[1]
+                    break
+
+            if self.access_token is None:
+                raise ConfigurationError('Cannot get the access_token')
+
         else:
-            raise TokenNotFoundError('Cannot get the access token from a server. :' +
-                                     namespace.error_description)  # pylint: disable=E1101
+            multiprocessing_manager = multiprocessing.Manager()
+            namespace = multiprocessing_manager.Namespace()
+            event = multiprocessing.Event()
 
-        process.join()
+            process = multiprocessing.Process(
+                target=callback_process, args=(namespace, event))
+            process.start()
 
-    #pylint: disable=too-many-arguments
-    def configure(self, configure_file_name=None,
+            while not self._is_listening():
+                time.sleep(0.1)
+
+            request_uri = TISTORY_AUTHORIZE_URL + \
+                TISTORY_AUTHORIZE_PARAMS.format(self.client_id)
+
+            webbrowser.open_new(request_uri)
+
+            event.wait()
+            if hasattr(namespace, 'access_token') and namespace.access_token:  # pylint: disable=E1101
+                self.access_token = namespace.access_token  # pylint: disable=E1101
+                # disable the pylint message E1101 `Instance of 'Namespace'
+                # has no 'access_token' member'`
+                # checked in if statement
+            else:
+                raise TokenNotFoundError('Cannot get the access token from a server. :' +
+                                         namespace.error_description)  # pylint: disable=E1101
+
+            process.join()
+
+    def _configure_with_file(self, file_name=None, no_error=False):
+        """파일을 통한 설정
+
+        :param file_name: 환경 설정파일이 담겨있는 파일 이름, defaults to None
+        :type file_name: str, optional
+        :param no_error: 에러를 일으키지 않는 옵션 (기본 설정 파일일 때 사용), defaults to False
+        :type no_error: bool, optional
+        """
+        if file_name is None:
+            raise ConfigurationError("You have to pass a file name")
+
+        if not os.path.exists(file_name) or not os.path.isfile(file_name):
+            if no_error:
+                return
+
+            raise ConfigurationError(
+                "You have to pass the file name that is valid.")
+
+        config = configparser.ConfigParser()
+        config.read(file_name)
+
+        if CONFIG_SECTION_NAME not in config:
+            if no_error:
+                return
+
+            raise InvalidSectionError('Cannot find a `{}` section in `{}`.'.
+                                      format(CONFIG_SECTION_NAME, file_name))
+        if CONFIG_CLIENT_ID not in config[CONFIG_SECTION_NAME]:
+            if no_error:
+                return
+
+            raise InvalidNameError('Cannot find a tistory client id in `{}`.'
+                                   .format(file_name))
+
+        self.client_id = config[CONFIG_SECTION_NAME][CONFIG_CLIENT_ID]
+
+        # if configuration file includes an account information
+        if CONFIG_TISTORY_ID in config[CONFIG_SECTION_NAME]:
+            self.tistory_id = config[CONFIG_SECTION_NAME][CONFIG_TISTORY_ID]
+        if CONFIG_TISTORY_PASSWORD in config[CONFIG_SECTION_NAME]:
+            self.tistory_password = config[CONFIG_SECTION_NAME][CONFIG_TISTORY_PASSWORD]
+
+    # pylint: disable=too-many-arguments
+    def configure(self, file_name=None,
                   client_id=None,
-                  tistory_id=None, tistory_password=None,
-                  with_browser=False):
+                  tistory_id=None,
+                  tistory_password=None,
+                  force_browser=False):
         """Tistory OAuth 2.0 인증을 실행하는 함수입니다.
 
         `Tistory Open API OAuth 인증 <http://www.tistory.com/guide/api/oauth>`_ 에
@@ -216,68 +200,66 @@ class PyTistory:
         티스토리 client_id 값을 파일에서 읽거나,
         인자에서 받거나, 환경변수에서 받아서 인증을 하게 됩니다.
 
+        우선순위
+         - 함수로 넘어오는 인자값
+         - 함수로 넘어오는 파일명에 설정되어 있는 값
+         - 환경변수값
+         - 기본 파일에 설정되어 있는 값
+
+        만약 file_name도 넘어오고, client_id, tistory_id, tistory_password 중
+        하나 이상의 인자가 넘어온다면 file_name에 있던 값들을 인자로 넘긴 값으로 덮어씌운다
+
         환경 변수의 KEY는 `PYTISTORY_CLIENT_ID` 를
         사용합니다.
 
-        :param configure_file_name: configure 파일 이름, defaults to None
-        :type configure_file_name: str, optional
+        :param file_name: configure 파일 이름, defaults to None
+        :type file_name: str, optional
         :param client_id: 티스토리 OAuth를 위한 client_id 값, defaults to None
         :type client_id: str, optional
         :param tistory_id: 티스토리 아이디입니다., defaults to None
         :type tistory_id: str, optional
         :param tistory_password: 티스토리 비밀번호입니다., defaults to None
         :type tistory_password: str, optional
-        :param with_browser: 브라우저를 이용하여 설정합니다., defaults to False
-        :type with_browser: bool, optional
+        :param force_browser: 무조건 브라우저를 이용하여 설정합니다., defaults to False
+        :type force_browser: bool, optional
         :raises OptionNotFoundError: 인증 과정에서 아무런 인증 옵션이 없을 때 일어나는 에러입니다.
         """
-        headless_auth = False
+        try_headless_auth = False
 
-        if not with_browser:
-            if configure_file_name is not None:
-                # 파일에서 설정읽기
-                self.file_name = configure_file_name
-                config = self._read_configuration_file(headless_auth)
+        # with a default credential file
+        self._configure_with_file(DEFAULT_CONFIG_FILE_NAME, no_error=True)
 
-                self.client_id = config[CONFIG_SECTION_NAME][CONFIG_CLIENT_ID]
-                self.tistory_id = config[CONFIG_SECTION_NAME][CONFIG_TISTORY_ID]
-                self.tistory_password = config[CONFIG_SECTION_NAME][CONFIG_TISTORY_PASSWORD]
-                if self.tistory_id and self.tistory_password:
-                    headless_auth = True
-            elif client_id is not None:
-                self.client_id = client_id
-                if tistory_id is not None and tistory_password is not None:
-                    headless_auth = True
-                    self.tistory_id = tistory_id
-                    self.tistory_password = tistory_password
-            else:
-                self.client_id = os.environ.get('PYTISTORY_CLIENT_ID')
+        # with env vars
+        self.client_id = os.environ.get(
+            'PYTISTORY_CLIENT_ID', self.client_id)
+        self.tistory_id = os.environ.get(
+            'PYTISTORY_TISTORY_ID', self.tistory_id)
+        self.tistory_password = os.environ.get(
+            'PYTISTORY_TISTORY_PASSWORD', self.tistory_password)
 
-                if self.client_id is None:
-                    raise OptionNotFoundError('Cannot configure a PyTistory.')
+        # with file
+        if file_name is not None:
+            self._configure_with_file(file_name)
 
-                self.tistory_id = os.environ.get('PYTISTORY_TISTORY_ID')
-                self.tistory_password = os.environ.get(
-                    'PYTISTORY_TISTORY_PASSWORD')
+        # with args
+        if client_id is not None:
+            self.client_id = client_id
+        if tistory_id is not None:
+            self.tistory_id = tistory_id
+        if tistory_password is not None:
+            self.tistory_password = tistory_password
 
-                if self.tistory_id and self.tistory_password:
-                    headless_auth = True
-        else:
-            if client_id:
-                self.client_id = client_id
-            else:
-                raise ConfigurationError("Cannot find a client id.")
+        if self.client_id is None:
+            raise OptionNotFoundError("Cannot configure a PyTistory.")
+
+        if self.tistory_id is not None and self.tistory_password is not None:
+            try_headless_auth = True
 
         # access token 받아오기
-        self._set_access_token(headless_auth)
+        self._set_access_token(try_headless_auth and not force_browser)
 
         self.blog.set_access_token(self.access_token)
         self.post.set_access_token(self.access_token)
         self.category.set_access_token(self.access_token)
         self.comment.set_access_token(self.access_token)
         self.guestbook.set_access_token(self.access_token)
-
-        if self.file_name:
-            config[CONFIG_SECTION_NAME][CONFIG_ACCESS_TOKEN] = self.access_token
-            with open(self.file_name, 'w') as config_file:
-                config.write(config_file)
