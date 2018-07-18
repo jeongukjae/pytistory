@@ -2,7 +2,7 @@ version: 2
 jobs:
   build:
     docker:
-      - image: circleci/python:3.6.1-browsers
+      - image: circleci/python:latest
 
     working_directory: ~/pytistory
 
@@ -29,27 +29,4 @@ jobs:
           name: run tests
           command: |
             . env/bin/activate
-            coverage run setup.py test
-            coverage combine
-
-      - run:
-          name: post the test report
-          command: |
-            . env/bin/activate
-            codecov
-      
-      - run:
-          name: init pypirc
-          command: |
-            echo -e "[pypi]" >> ~/.pypirc
-            echo -e "username = JeongUkJae" >> ~/.pypirc
-            echo -e "password = $PYPI_PASSWORD" >> ~/.pypirc
-      
-      - run:
-          name: deploy to the pypi
-          command: |
-            if [ "${CIRCLE_BRANCH}" == "release" ]; then
-              . env/bin/activate
-              python setup.py sdist bdist_wheel
-              twine upload dist/*
-            fi
+            python setup.py test

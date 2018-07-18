@@ -1,0 +1,20 @@
+sudo: false
+language: python
+python:
+  - '3.6'
+  - '3.7'
+install:
+  - pip install -r requirements.txt
+  - pip install codecov
+script:
+  - coverage run setup.py test
+  - coverage combine
+after_success:
+  - codecov
+deploy:
+  provider: pypi
+  user: JeongUkJae
+  password:
+    secure: LIqyO41o7ER34s5DJbxVKdq7+PNGIxmv9dqE1RszIrTlWPNB9jzhK2RBAkye+v4r0lhG26YR63hTRBxDQWhNwURpADMWTYD+8bqjy9KnkyZ/i9fNMVC6X95URHvKaNyHBRKrcbk8fG4dJRTLts29nlsDPc7HJjZIre3Rp9qyMNXmU4mXxbWRAdM0qgdrO+n7FzY1/gtMGBoQPkbNzF0cfoInlVYF42dslW5EKvj6L9yI4LLaDSaWGySzuNKPzvvUNr1gOWGcLS4wbsaGe0LaAhDvINoweb6agF6EWnLHKsDAHq2Tfz/X3+r3O+lIifnh0pD1tPK/rwUktb5xtVMBGgLA640luX+s67dzQY3DcjyHr1tngVjxdafGHb+XX3O/PQ+dCdepQL5Et2j5G/ftxMjG16ELD55RrLf8pPUZv9Unk/kKr+dzK6N17fJS3uL4k29Vf5zXQZ6UwNDoKUxjYEnh1at4/BdhqsFbK21YIJNfNnJLVbVE/lvKSsn8VFpuxc6koMB0Gp8tqJvK07eHe1C8Kcq/Au4PXvm4mKc3Yu2JVUlfYanbhZl/LUkRvRYb4VsE0l9v1fDuISimn9NdlJQ56ba546Vm3X4RO3oIVpv0eW+IOqE6/y89zH+3MV2QoptpZveAVNnyLl6zrOI/T/sVGkt+OZVOAWOk2xU4gy8=
+  on:
+    branch: release
