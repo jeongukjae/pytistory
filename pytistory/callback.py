@@ -1,5 +1,5 @@
 # -*- coding: utf8 -*-
-#pylint: disable=W0612
+# pylint: disable=W0612
 # disable the pylint message W0612 `Unused variable 'callback' and
 # 'callback_modified'`
 """티스토리 OAuth 인증을 위한 로컬서버입니다.

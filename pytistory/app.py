@@ -53,6 +53,8 @@ class PyTistory:
     # 해당 클래스의 멤버를 통해 api를 부르므로, too-few-public-methods는 체크할 필요가 없다.
 
     def __init__(self):
+        self.__TESTING__ = False
+
         self.client_id = None
         self.tistory_id = None
         self.tistory_password = None
@@ -131,7 +133,8 @@ class PyTistory:
             request_uri = TISTORY_AUTHORIZE_URL + \
                 TISTORY_AUTHORIZE_PARAMS.format(self.client_id)
 
-            webbrowser.open_new(request_uri)
+            if not self.__TESTING__:
+                webbrowser.open_new(request_uri)
 
             event.wait()
             if hasattr(namespace, 'access_token') and namespace.access_token:  # pylint: disable=E1101
@@ -141,11 +144,11 @@ class PyTistory:
                 # checked in if statement
             else:
                 raise TokenNotFoundError('Cannot get the access token from a server. :' +
-                                         namespace.error_description)  # pylint: disable=E1101
+                                         namespace.error_description if namespace.error_description is not None else 'We can`t find an error.\n please report this as an issue :)\nhttps://github.com/JeongUkJae/pytistory/issues')  # pylint: disable=E1101
 
             process.join()
 
-    def _configure_with_file(self, file_name=None, no_error=False):
+    def _configure_with_file(self, file_name, no_error=False):
         """파일을 통한 설정
 
         :param file_name: 환경 설정파일이 담겨있는 파일 이름, defaults to None
@@ -153,7 +156,7 @@ class PyTistory:
         :param no_error: 에러를 일으키지 않는 옵션 (기본 설정 파일일 때 사용), defaults to False
         :type no_error: bool, optional
         """
-        if file_name is None:
+        if not file_name:
             raise ConfigurationError("You have to pass a file name")
 
         if not os.path.exists(file_name) or not os.path.isfile(file_name):
