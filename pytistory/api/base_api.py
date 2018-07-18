@@ -11,6 +11,7 @@ import requests
 
 from ..exceptions import ParsingError, TokenNotFoundError, NoSpecifiedBlogError
 
+
 class BaseAPI:
     """다른 API들은 이 클래스를 상속받아 이용합니다.
 
@@ -24,10 +25,11 @@ class BaseAPI:
             params['blogName'] = blog_name
         elif target_url:
             params['targetUrl'] = target_url
-            warnings.warn('A parameter `targetUrl` is deprecated.' +\
-                ' See also `http://www.tistory.com/guide/api/{0}.php`.'.format(self.kind))
+            warnings.warn('A parameter `targetUrl` is deprecated.' +
+                          ' See also `http://www.tistory.com/guide/api/{0}.php`.'.format(self.kind))
         else:
-            raise NoSpecifiedBlogError('There is no blog specified in parameters.')
+            raise NoSpecifiedBlogError(
+                'There is no blog specified in parameters.')
 
     def set_access_token(self, access_token):
         """Access Token을 설정합니다.
@@ -43,8 +45,8 @@ class BaseAPI:
         access_token과 output은 기본적인 인자라 함수로 만들어서 dict로 반환하도록 했습니다.
         """
         if self.access_token is None:
-            raise TokenNotFoundError('You have not set up an `Access Token` yet.' +\
-                ' Call configure() first.')
+            raise TokenNotFoundError('You have not set up an `Access Token` yet.' +
+                                     ' Call configure() first.')
         return {
             'access_token': self.access_token,
             'output': 'json'
@@ -77,7 +79,8 @@ class BaseAPI:
             if result['tistory']['status'] == '200':
                 return result['tistory']
 
-        raise ParsingError('Status Code is not 200.\nrequest : {} {}, {}\nresponse result: {}'.format(method, url, kwargs, result))
+        raise ParsingError('Status Code is not 200.\nrequest : {} {}, {}\nresponse result: {}'.format(
+            method, url, kwargs, result))
 
     @staticmethod
     def _get_url(kind, action):

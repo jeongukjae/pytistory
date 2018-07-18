@@ -25,6 +25,7 @@ CONFIG_ACCESS_TOKEN = 'access_token'
 CONFIG_TISTORY_ID = 'tistory_id'
 CONFIG_TISTORY_PASSWORD = 'tistory_password'
 
+
 def callback_process(namespace, event):
     """flask가 실행되는 process 함수.
 
@@ -39,6 +40,7 @@ def callback_process(namespace, event):
     callback = CallbackServer(namespace, event)
     callback.prepare()
 
+
 class PyTistory:
     """Tistory Api 전체적으로 묶어주는 클래스입니다.
 
@@ -48,6 +50,7 @@ class PyTistory:
     """
     # pylint: disable=too-many-instance-attributes,too-few-public-methods
     # 해당 클래스의 멤버를 통해 api를 부르므로, too-few-public-methods는 체크할 필요가 없다.
+
     def __init__(self):
         self.file_name = ''
         self.client_id = ''
@@ -80,18 +83,18 @@ class PyTistory:
         config.read(self.file_name)
 
         if CONFIG_SECTION_NAME not in config:
-            raise InvalidSectionError('Cannot find a `{}` section in `{}`.'.\
-                format(CONFIG_SECTION_NAME, self.file_name))
+            raise InvalidSectionError('Cannot find a `{}` section in `{}`.'.
+                                      format(CONFIG_SECTION_NAME, self.file_name))
         if CONFIG_CLIENT_ID not in config[CONFIG_SECTION_NAME]:
-            raise InvalidNameError('Cannot find a tistory client id in `{}`.'\
-                .format(self.file_name))
+            raise InvalidNameError('Cannot find a tistory client id in `{}`.'
+                                   .format(self.file_name))
         if headless_auth:
             if CONFIG_TISTORY_ID not in config[CONFIG_SECTION_NAME]:
-                raise InvalidNameError('Cannot find a tistory user id in `{}`.'\
-                    .format(self.file_name))
+                raise InvalidNameError('Cannot find a tistory user id in `{}`.'
+                                       .format(self.file_name))
             if CONFIG_TISTORY_PASSWORD not in config[CONFIG_SECTION_NAME]:
-                raise InvalidNameError('Cannot find a tistory password in `{}`.'\
-                    .format(self.file_name))
+                raise InvalidNameError('Cannot find a tistory password in `{}`.'
+                                       .format(self.file_name))
 
         return config
 
@@ -121,13 +124,15 @@ class PyTistory:
         namespace = multiprocessing_manager.Namespace()
         event = multiprocessing.Event()
 
-        process = multiprocessing.Process(target=callback_process, args=(namespace, event))
+        process = multiprocessing.Process(
+            target=callback_process, args=(namespace, event))
         process.start()
 
         while not self._is_listening():
             time.sleep(0.1)
 
-        request_uri = TISTORY_AUTHORIZE_URL + TISTORY_AUTHORIZE_PARAMS.format(self.client_id)
+        request_uri = TISTORY_AUTHORIZE_URL + \
+            TISTORY_AUTHORIZE_PARAMS.format(self.client_id)
 
         if not headless_auth:
             webbrowser.open_new(request_uri)
@@ -137,19 +142,22 @@ class PyTistory:
                 from selenium.common.exceptions import (WebDriverException, NoSuchWindowException,
                                                         NoSuchElementException)
             except (ImportError, ModuleNotFoundError):
-                raise ImportError('Cannot import selenum.\n' +\
-                    'The headless authentication option need selenium.')
+                raise ImportError('Cannot import selenum.\n' +
+                                  'The headless authentication option need selenium.')
             try:
                 options = webdriver.ChromeOptions()
                 options.add_argument('headless')
                 driver = webdriver.Chrome(options=options)
             except WebDriverException:
-                raise WebDriverError('Cannot open Chrome Headless. Please install Chrome Headless.')
+                raise WebDriverError(
+                    'Cannot open Chrome Headless. Please install Chrome Headless.')
 
             driver.get(request_uri)
             driver.find_element_by_name('loginId').send_keys(self.tistory_id)
-            driver.find_element_by_name('password').send_keys(self.tistory_password)
-            driver.find_element_by_xpath('//*[@id="authForm"]/fieldset/div/button').click()
+            driver.find_element_by_name(
+                'password').send_keys(self.tistory_password)
+            driver.find_element_by_xpath(
+                '//*[@id="authForm"]/fieldset/div/button').click()
 
             try:
                 current_url = driver.current_url
@@ -159,36 +167,40 @@ class PyTistory:
             # 비밀번호 변경하라는 창
             if current_url.split('?')[0].endswith('outdated'):
                 # 다음에 변경하기
-                driver.find_element_by_xpath('//*[@id="passwordChangeForm"]/fieldset/div/a').click()
+                driver.find_element_by_xpath(
+                    '//*[@id="passwordChangeForm"]/fieldset/div/a').click()
             elif current_url.endswith('auth/login'):
                 try:
-                    driver.find_element_by_xpath('//*[@id="authForm"]/fieldset' +\
-                        '/div/div[contains(@class, \'box_noti\')]')
+                    driver.find_element_by_xpath('//*[@id="authForm"]/fieldset' +
+                                                 '/div/div[contains(@class, \'box_noti\')]')
 
                     # 만약 위에서 오류가 안나면 ID/PW 오류.
                     # 나면, 이메일 인증 오류
-                    raise InvalidAccountError('Invalid Account Information. Please enter correct' +\
-                        ' ID and PW.')
+                    raise InvalidAccountError('Invalid Account Information. Please enter correct' +
+                                              ' ID and PW.')
                 except NoSuchElementException:
-                    raise EmailAuthError('Email authentication is required to log in to Tistory.')
+                    raise EmailAuthError(
+                        'Email authentication is required to log in to Tistory.')
                 finally:
                     process.terminate()
                     process.join()
             elif not current_url.startswith('http://0.0.0.0:5000'):
                 process.terminate()
                 process.join()
-                raise ConfigurationError('Invalid ID format or Invalid client key.')
+                raise ConfigurationError(
+                    'Invalid ID format or Invalid client key.')
 
             driver.quit()
 
         event.wait()
-        if hasattr(namespace, 'access_token') and namespace.access_token: #pylint: disable=E1101
-            self.access_token = namespace.access_token #pylint: disable=E1101
+        if hasattr(namespace, 'access_token') and namespace.access_token:  # pylint: disable=E1101
+            self.access_token = namespace.access_token  # pylint: disable=E1101
             # disable the pylint message E1101 `Instance of 'Namespace'
             # has no 'access_token' member'`
             # checked in if statement
         else:
-            raise TokenNotFoundError('Cannot get the access token from a server. :' + namespace.error_description) #pylint: disable=E1101
+            raise TokenNotFoundError('Cannot get the access token from a server. :' +
+                                     namespace.error_description)  # pylint: disable=E1101
 
         process.join()
 
@@ -245,7 +257,8 @@ class PyTistory:
                     raise OptionNotFoundError('Cannot configure a PyTistory.')
 
                 self.tistory_id = os.environ.get('PYTISTORY_TISTORY_ID')
-                self.tistory_password = os.environ.get('PYTISTORY_TISTORY_PASSWORD')
+                self.tistory_password = os.environ.get(
+                    'PYTISTORY_TISTORY_PASSWORD')
 
                 if self.tistory_id and self.tistory_password:
                     headless_auth = True

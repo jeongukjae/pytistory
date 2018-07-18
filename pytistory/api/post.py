@@ -5,6 +5,7 @@ import datetime
 
 from .base_api import BaseAPI
 
+
 class Post(BaseAPI):
     """Post 관련 API Client 구현입니다.
 

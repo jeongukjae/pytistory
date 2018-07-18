@@ -24,9 +24,11 @@ window.close()
 </script>
 """
 
+
 class CallbackServer:
     """티스토리 OAuth를 위해 로컬 서버를 엽니다.
     """
+
     def __init__(self, namespace, event):
         self.namespace = namespace
         self.event = event

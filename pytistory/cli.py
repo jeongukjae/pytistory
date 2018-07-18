@@ -6,8 +6,10 @@ import json
 
 from . import PyTistory
 
+
 def parse_arguments():
-    parser = argparse.ArgumentParser(prog='pytistory', description="Tistory Blog API Client")
+    parser = argparse.ArgumentParser(
+        prog='pytistory', description="Tistory Blog API Client")
 
     subparsers = parser.add_subparsers(dest='kind', help='commands')
     subparsers.required = True
@@ -16,32 +18,42 @@ def parse_arguments():
     blog_parser = subparsers.add_parser('blog', help='Blog API Client')
     blog_parser.add_argument('action', choices=['info'], type=str)
 
-    blog_parser.add_argument('--with-browser', help="브라우저를 이용해서 설정합니다.", action="store_true")
-    blog_parser.add_argument('--headless', help="Headless 브라우저를 이용해 설정합니다. 만약 headless 와 with-browser가 설정이 되어 있지 않다면, 환경변수를 찾아서 설정합니다.", action="store_true")
+    blog_parser.add_argument(
+        '--with-browser', help="브라우저를 이용해서 설정합니다.", action="store_true")
+    blog_parser.add_argument(
+        '--headless', help="Headless 브라우저를 이용해 설정합니다. 만약 headless 와 with-browser가 설정이 되어 있지 않다면, 환경변수를 찾아서 설정합니다.", action="store_true")
     blog_parser.add_argument('--id', help="티스토리 아이디 (Headless 옵션에서 사용합니다.)")
-    blog_parser.add_argument('--password', help="티스토리 패스워드 (실행 후 입력합니다, Headless 옵션에서 사용합니다.)")
-    blog_parser.add_argument('--client_id', help="티스토리 오픈 API Client ID (Headless 옵션에서 사용합니다.)")
-    blog_parser.add_argument('--access_token', help="티스토리 오픈 API Access Token (Headless 옵션에서 사용합니다.)")
+    blog_parser.add_argument(
+        '--password', help="티스토리 패스워드 (실행 후 입력합니다, Headless 옵션에서 사용합니다.)")
+    blog_parser.add_argument(
+        '--client_id', help="티스토리 오픈 API Client ID (Headless 옵션에서 사용합니다.)")
+    blog_parser.add_argument(
+        '--access_token', help="티스토리 오픈 API Access Token (Headless 옵션에서 사용합니다.)")
 
     # post
     post_parser = subparsers.add_parser('post', help='Post API Client')
-    post_parser.add_argument('action', choices=['list', 'write', 'modify',\
-        'read', 'attach', 'delete'], type=str)
+    post_parser.add_argument('action', choices=['list', 'write', 'modify',
+                                                'read', 'attach', 'delete'], type=str)
 
     # category
-    category_parser = subparsers.add_parser('category', help='Category API Client')
+    category_parser = subparsers.add_parser(
+        'category', help='Category API Client')
     category_parser.add_argument('action', choices=['list'], type=str)
 
     # comment
-    comment_parser = subparsers.add_parser('comment', help='Comment API Client')
-    comment_parser.add_argument('action', choices=['list', 'write', 'modify',\
-        'newest', 'delete'], type=str)
+    comment_parser = subparsers.add_parser(
+        'comment', help='Comment API Client')
+    comment_parser.add_argument('action', choices=['list', 'write', 'modify',
+                                                   'newest', 'delete'], type=str)
 
     # guestbook
-    guestbook_parser = subparsers.add_parser('guestbook', help='Guestbook API Client')
-    guestbook_parser.add_argument('action', choices=['list', 'write', 'modify', 'delete'], type=str)
+    guestbook_parser = subparsers.add_parser(
+        'guestbook', help='Guestbook API Client')
+    guestbook_parser.add_argument(
+        'action', choices=['list', 'write', 'modify', 'delete'], type=str)
 
     return parser.parse_args()
+
 
 def main():
     """PyTistory CLI를 시작합니다.
@@ -57,6 +69,7 @@ def main():
             pytistory.configure(with_browser=True, client_id=args.client_id)
         else:
             raise Exception()
-    result = pytistory.__getattribute__(args.kind).__getattribute__(args.action)()
+    result = pytistory.__getattribute__(
+        args.kind).__getattribute__(args.action)()
 
     print(json.dumps(result, ensure_ascii=False, indent=2))

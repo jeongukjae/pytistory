@@ -4,6 +4,7 @@
 """
 from .base_api import BaseAPI
 
+
 class Guestbook(BaseAPI):
     """Guestbook 관련 API Client 구현입니다.
 

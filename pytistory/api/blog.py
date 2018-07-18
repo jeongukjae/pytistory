@@ -3,6 +3,7 @@
 """
 from .base_api import BaseAPI
 
+
 class Blog(BaseAPI):
     """Blog 관련 API Client 구현입니다.
 
