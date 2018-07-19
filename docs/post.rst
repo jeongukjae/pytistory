@@ -165,3 +165,106 @@ Post API
     "postId": "74",
     "url": "http://sampleUrl.tistory.com/74"
   }
+
+글 읽기
+--------------
+
+단일 게시글을 읽을 수 있는 API입니다. 해당 API에 관한 정보는
+`글 읽기 API <http://www.tistory.com/guide/api/post.php#post-read>`_ 를 통해
+살펴보실 수 있습니다.
+
+.. code-block:: python
+
+  from pytistory import PyTistory
+
+  pytistory = PyTistory()
+  pytistory.configure()
+
+  response = pytistory.post.read(1, blog_name='sampleUrl')
+
+인자값은 ``blog_name``\과 ``post_id``\만을 받습니다.
+
+결과값은 아래처럼 받을 수 있습니다.
+
+.. code-block:: json
+
+  {
+    "status": "200",
+    "item": {
+      "url": "http://oauth.tistory.com",
+      "secondaryUrl": "",
+      "id": "1",
+      "title": "티스토리 OAuth2.0 API 오픈!",
+      "content":
+        "안녕하세요 Tistory API 입니다.<br><br>이번에 Third-party Developer 용 <b>Tistory OAuth 2.0 API</b> 가 오픈됩니다.",
+      "categoryId": "0",
+      "postUrl": "http://oauth.tistory.com/1",
+      "visibility": "0",
+      "acceptComment": "1",
+      "acceptTrackback": "1",
+      "tags": {
+        "tag": ["open", "api"]
+      },
+      "comments": "0",
+      "trackbacks": "0",
+      "date": "1303352668"
+    }
+  }
+
+파일 첨부
+--------------
+
+파일을 첨부 할 수 있는 API입니다. 해당 API에 관한 정보는
+`파일 첨부 API <http://www.tistory.com/guide/api/post.php#post-attach>`_ 를 통해
+살펴보실 수 있습니다.
+
+.. code-block:: python
+
+  from pytistory import PyTistory
+
+  pytistory = PyTistory()
+  pytistory.configure()
+
+  response = pytistory.post.attach('./path/to/uploading/file', blog_name='sampleUrl')
+
+인자값은 파일의 경로와 블로그의 이름을 받습니다. 스트림을 통한 업로드는 추후 구현예정입니다.
+
+결과값은 아래처럼 받을 수 있습니다.
+
+.. code-block:: json
+
+  {
+    "status": "200",
+    "url": "http://cfile6.uf.tistory.com/image/1328CE504DB79F5932B13F",
+    "replacer":
+      "%5b%23%23_1N%7ccfile6.uf%401328CE504DB79F5932B13F%7cwidth%3d\"500\"+height%3d\"300\"%7c_%23%23%5d"
+  }
+
+
+글 삭제
+--------------
+
+**이 API를 사용하기 위해서는 사전 협의가 필요하다고 합니다.**
+
+단일 게시글을 삭제할 수 있는 API입니다. 해당 API에 관한 정보는
+`글 삭제 <http://www.tistory.com/guide/api/post.php#post-delete>`_ 를 통해
+살펴보실 수 있습니다.
+
+.. code-block:: python
+
+  from pytistory import PyTistory
+
+  pytistory = PyTistory()
+  pytistory.configure()
+
+  response = pytistory.post.delete(1, blog_name='sampleUrl')
+
+인자값은 글의 번호와 블로그의 이름을 받습니다.
+
+결과값은 아래처럼 받을 수 있습니다.
+
+.. code-block:: json
+
+  {
+    "status": "200"
+  }
