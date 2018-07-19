@@ -24,7 +24,7 @@ setup(
     author_email='jeongukjae@gmail.com',
     license='MIT',
     classifiers=[
-        'Development Status :: 2 - Pre-Alpha',
+        'Development Status :: 3 - Alpha',
 
         'Intended Audience :: End Users/Desktop',
         'Topic :: Internet :: WWW/HTTP :: Site Management',
