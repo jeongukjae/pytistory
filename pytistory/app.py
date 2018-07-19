@@ -20,7 +20,6 @@ TISTORY_AUTHORIZE_PARAMS = '?client_id={0}&redirect_uri=http://0.0.0.0:5000/call
 
 CONFIG_SECTION_NAME = 'pytistory'
 CONFIG_CLIENT_ID = 'client_id'
-CONFIG_ACCESS_TOKEN = 'access_token'
 CONFIG_TISTORY_ID = 'tistory_id'
 CONFIG_TISTORY_PASSWORD = 'tistory_password'
 
@@ -166,28 +165,29 @@ class PyTistory:
                 "You have to pass the file name that is valid.")
 
         config = configparser.ConfigParser()
-        config.read(file_name)
+        with open(file_name) as fp:
+            config.read_string(fp.read())
 
-        if CONFIG_SECTION_NAME not in config:
-            if no_error:
-                return
+            if CONFIG_SECTION_NAME not in config:
+                if no_error:
+                    return
 
-            raise InvalidSectionError('Cannot find a `{}` section in `{}`.'.
-                                      format(CONFIG_SECTION_NAME, file_name))
-        if CONFIG_CLIENT_ID not in config[CONFIG_SECTION_NAME]:
-            if no_error:
-                return
+                raise InvalidSectionError('Cannot find a `{}` section in `{}`.'.
+                                          format(CONFIG_SECTION_NAME, file_name))
+            if CONFIG_CLIENT_ID not in config[CONFIG_SECTION_NAME]:
+                if no_error:
+                    return
 
-            raise InvalidNameError('Cannot find a tistory client id in `{}`.'
-                                   .format(file_name))
+                raise InvalidNameError('Cannot find a tistory client id in `{}`.'
+                                       .format(file_name))
 
-        self.client_id = config[CONFIG_SECTION_NAME][CONFIG_CLIENT_ID]
+            self.client_id = config[CONFIG_SECTION_NAME][CONFIG_CLIENT_ID]
 
-        # if configuration file includes an account information
-        if CONFIG_TISTORY_ID in config[CONFIG_SECTION_NAME]:
-            self.tistory_id = config[CONFIG_SECTION_NAME][CONFIG_TISTORY_ID]
-        if CONFIG_TISTORY_PASSWORD in config[CONFIG_SECTION_NAME]:
-            self.tistory_password = config[CONFIG_SECTION_NAME][CONFIG_TISTORY_PASSWORD]
+            # if configuration file includes an account information
+            if CONFIG_TISTORY_ID in config[CONFIG_SECTION_NAME]:
+                self.tistory_id = config[CONFIG_SECTION_NAME][CONFIG_TISTORY_ID]
+            if CONFIG_TISTORY_PASSWORD in config[CONFIG_SECTION_NAME]:
+                self.tistory_password = config[CONFIG_SECTION_NAME][CONFIG_TISTORY_PASSWORD]
 
     # pylint: disable=too-many-arguments
     def configure(self, file_name=None,
