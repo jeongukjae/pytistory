@@ -17,7 +17,7 @@ pytistory는 ``pip``\ 를 통해 설치할 수 있습니다.
 먼저, 티스토리 API를 사용하기 위해 OAuth 과정을 거쳐야합니다. 그를 위해 티스토리 API client_id가 필요합니다.
 그를 위해 `티스토리 오픈 API 인증 가이드 <http://www.tistory.com/guide/api/oauth>`_\ 에서, 클라이언트 등록을 합니다.
 
-.. image:: _static/images/OAuth\ Registration.png
+.. image:: ./_static/images/OAuth\ Registration.png
 
 서비스 형태와 서비스 권한, Callback 경로를 적절하게 수정해야 합니다.
 
