@@ -1,25 +1,25 @@
 sudo: false
 language: python
 python:
-  - "3.5"
-  - "3.5-dev"
-  - "3.6"
-  - "3.6-dev"
-  - "3.7-dev"
+- '3.5'
+- 3.5-dev
+- '3.6'
+- 3.6-dev
+- 3.7-dev
 install:
-  - pip install -r requirements.txt
-  - pip install codecov
+- pip install -r requirements.txt
+- pip install codecov
 script:
-  - coverage run setup.py test
-  - coverage combine
+- coverage run setup.py test
+- coverage combine
 after_success:
-  - codecov
+- codecov
 before_deploy:
-  - git stash --all
+- git stash --all
 deploy:
   provider: pypi
   user: JeongUkJae
   password:
-    secure: "GLY/OCyN6ZssY+UxZh4lLTzARk+KqNgPYNqxplLL3Jsf/DRsh4aTLTsWu6srJyjIv3C7IksuLwbiXA9uKrilL2n8CEZ0OdnmvVNmGkvIWyXA5GjSMlWA1NpsurkrtkyknLb78KD+5OrOEQMpikBoszTcuNpFTVhSRr1po2r+p2zLn4DOASgIH3GcFN+6MY76zQyKZ7oGLrwovazkXTvb22XbLPNl3QkTvyQ2ae9v/zoY1x3MEJLTMgJlacV6bZvQSxe4rKkautYNOivU6fq1+80IADQOEFBYDz9CaIHEk0cz1ddLUijdSv7+y975zlTr9Ko3+ywGDUR1Vda9mwyzEkVgGJ5LDsS1gG7zJLdvJ/4lRPh75Kj7RHsPB8l6Lrg77XyJXbOLcAmfHrn9olDC9qeNJHZh2Q2xwZXEDIHbuYMGHTk5m5sFuMeHrTNoE6ETbu2KyXxT3ZpHu2vbxTpRembzZgF8/CJPP1qa0vBHCDXpTvpgT1T+KbJwUSBR6RD+12N8jqdR2iO1/eNMxA3mlPABxB2wJhuo00yMUlpqafRmLKVcjhqQQYe8x7v0hbXmIlgdchA/d2q5ZB3QK5UfdIeJ2l9KO7i+Yjkh7qK9gR8fmvPDiDS8UELucPeDEnqVtoZPQIiepHzfoEa+seBCveEsGwAoWeCT7Qd870MMxLo="
+    secure: kLDMob2GA5smTe3nfIplqwZ0aN2jPGhUJNJ/8pwu5sLbAmoMgJ+JRHUCFBj9AdV6rQys6Ikb/AWsSLBXeELglqigX/AfhSc4FMyoNHk9xEvdGbIyOSuR97viCQIaNjf/4/vpmDyTTNdnxkOF9qIIEdFqoZAKnXZHDZon4f8pOxbIoZ1t+2WDY8kWxjphrWt9ULQAO2y+/E2iGRikL2ftbnkOaXtvJwrUwk7e9KuBfoVcSBKUUy52PPkiR6PCDCf08Pz42F+2ekZrlltmyg1sKHocjbaDwFarMfntpkdlEXr3pJJXT3lfLqtZHYHbauzLRnCg0hPjeOKyS9m6m0TqU5KwslBA2f041Con4E6MCOSsn+shdx8aHaBCBsDzEYJk9QqwL+e+RsJtj5gHEHItSJq9EI9XWBqE/J2OGWk7hRESKCwzBJHSW36cTMWVqQ8fWAnizzNgEiIvTVYk5z+fJE6hbgvuIjYvGMH2yIrcQnql1RpQsmvjcFCaTjg57HOwbvekSn5HsBOabnUcuIIWCassNYWilHI7hutX9xf0M40e0N/0+N7+y0Jo3s/JU2PpsdmVKReEpoG+xZBknNsvMbr3ky/d4ROmF3NSnKgLMAy6G4bzT/ipE3Zw6dzBmjbn6A8W3nS6hUsk+D7K7p9ouJ+jz8dnmON1JiStSqcmYos=
   on:
     branch: release
