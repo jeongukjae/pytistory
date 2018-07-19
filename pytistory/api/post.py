@@ -83,6 +83,8 @@ class Post(BaseAPI):
         :type content: str, optional
         :param slogan: 문자 주소. 이는 아마 블로그 주소 형식을 문자로 설정했을 때의 값인 듯 함., defaults to None
         :type slogan: str, optional
+        :param tag: 게시글에 태그를 설정합니다, defaults to None
+        :type tag: list, optional
         :raise NoSpecifiedBlog: 블로그 정보를 설정할 수 없을 때 일어납니다.
         :raise TypeError: 인자의 타입이 잘못되었을 때 일어납니다.
         :return:
@@ -127,7 +129,7 @@ class Post(BaseAPI):
                category=0, content=None, slogan=None, tag=None):
         """post/modify API 구현입니다.
 
-        최근 게시물 목록을 가져올 수 있는 API입니다. 해당 API에 관한 정보는
+        작성된 게시글을 수정할 수 있는 API입니다. 해당 API에 관한 정보는
         `링크 <http://www.tistory.com/guide/api/post.php#post-modify>`_ 를 통해
         살펴보실 수 있습니다.
 
@@ -153,6 +155,8 @@ class Post(BaseAPI):
         :type content: str, optional
         :param slogan: 문자 주소. 이는 아마 블로그 주소 형식을 문자로 설정했을 때의 값인 듯 함., defaults to None
         :type slogan: str, optional
+        :param tag: 게시글에 태그를 설정합니다, defaults to None
+        :type tag: list, optional
         :raise NoSpecifiedBlog: 블로그 정보를 설정할 수 없을 때 일어납니다.
         :raise TypeError: 인자의 타입이 잘못되었을 때 일어납니다.
         :return:
