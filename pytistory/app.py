@@ -194,7 +194,8 @@ class PyTistory:
                   client_id=None,
                   tistory_id=None,
                   tistory_password=None,
-                  force_browser=False):
+                  force_browser=False,
+                  access_token=None):
         """Tistory OAuth 2.0 인증을 실행하는 함수입니다.
 
         `Tistory Open API OAuth 인증 <http://www.tistory.com/guide/api/oauth>`_ 에
@@ -226,39 +227,42 @@ class PyTistory:
         :type force_browser: bool, optional
         :raises OptionNotFoundError: 인증 과정에서 아무런 인증 옵션이 없을 때 일어나는 에러입니다.
         """
-        try_headless_auth = False
+        if access_token is not None:
+            self.access_token = access_token
+        else:
+            try_headless_auth = False
 
-        # with a default credential file
-        self._configure_with_file(DEFAULT_CONFIG_FILE_NAME, no_error=True)
+            # with a default credential file
+            self._configure_with_file(DEFAULT_CONFIG_FILE_NAME, no_error=True)
 
-        # with env vars
-        self.client_id = os.environ.get(
-            'PYTISTORY_CLIENT_ID', self.client_id)
-        self.tistory_id = os.environ.get(
-            'PYTISTORY_TISTORY_ID', self.tistory_id)
-        self.tistory_password = os.environ.get(
-            'PYTISTORY_TISTORY_PASSWORD', self.tistory_password)
+            # with env vars
+            self.client_id = os.environ.get(
+                'PYTISTORY_CLIENT_ID', self.client_id)
+            self.tistory_id = os.environ.get(
+                'PYTISTORY_TISTORY_ID', self.tistory_id)
+            self.tistory_password = os.environ.get(
+                'PYTISTORY_TISTORY_PASSWORD', self.tistory_password)
 
-        # with file
-        if file_name is not None:
-            self._configure_with_file(file_name)
+            # with file
+            if file_name is not None:
+                self._configure_with_file(file_name)
 
-        # with args
-        if client_id is not None:
-            self.client_id = client_id
-        if tistory_id is not None:
-            self.tistory_id = tistory_id
-        if tistory_password is not None:
-            self.tistory_password = tistory_password
+            # with args
+            if client_id is not None:
+                self.client_id = client_id
+            if tistory_id is not None:
+                self.tistory_id = tistory_id
+            if tistory_password is not None:
+                self.tistory_password = tistory_password
 
-        if self.client_id is None:
-            raise OptionNotFoundError("Cannot configure a PyTistory.")
+            if self.client_id is None:
+                raise OptionNotFoundError("Cannot configure a PyTistory.")
 
-        if self.tistory_id is not None and self.tistory_password is not None:
-            try_headless_auth = True
+            if self.tistory_id is not None and self.tistory_password is not None:
+                try_headless_auth = True
 
-        # access token 받아오기
-        self._set_access_token(try_headless_auth and not force_browser)
+            # access token 받아오기
+            self._set_access_token(try_headless_auth and not force_browser)
 
         self.blog.set_access_token(self.access_token)
         self.post.set_access_token(self.access_token)
