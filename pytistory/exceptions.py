@@ -59,6 +59,10 @@ class ParsingError(Exception):
     """
     pass
 
+class JSONDecodingError(Exception):
+    """Tistory API를 사용할 때 적절한 JSON 문자가 오지 않을 때 일어나는 에러입니다.
+    """
+    pass
 
 class NoSpecifiedBlogError(Exception):
     """명시된 블로그가 없을때 일어나는 에러입니다.

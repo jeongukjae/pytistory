@@ -9,7 +9,7 @@ import json
 import warnings
 import requests
 
-from ..exceptions import ParsingError, TokenNotFoundError, NoSpecifiedBlogError
+from ..exceptions import ParsingError, TokenNotFoundError, NoSpecifiedBlogError, JSONDecodingError
 
 
 class BaseAPI:
@@ -73,7 +73,10 @@ class BaseAPI:
         :rtype: dict
         """
         response = requests.request(method, url, **kwargs)
-        result = json.loads(response.text)
+        try:
+            result = json.loads(response.text)
+        except json.decoder.JSONDecodeError as e:
+            raise JSONDecodingError('Cannot parse into json.\nresponse: {}\nerror_message: {}'.format(response.text, e))
 
         if 'tistory' in result and 'status' in result['tistory']:
             if result['tistory']['status'] == '200':
