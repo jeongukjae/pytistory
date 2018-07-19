@@ -106,8 +106,87 @@ pytistory는 ``pip``\ 를 통해 설치할 수 있습니다.
   export PYTISTORY_TISTORY_ID=some-example-tistory-id
   export PYTISTORY_TISTORY_PASSWORD=some-example-tistory-password
 
+API호출
+~~~~~~~~~~~~
 
-작성 중
+https://www.tistory.com/apis/kind/action 와 같은 api를 호출할 경우 아래처럼 호출합니다.
+
+.. code-block:: python
+
+  from pytistory import PyTistory
+
+  pytistory = PyTistory()
+  pytistory.configure()
+
+  response = pytistory.kind.action(args...)
+
+예시로 블로그 정보를 받아오는 코드는 아래와 같습니다.
+
+.. code-block:: python
+
+  from pytistory import PyTistory
+
+  pytistory = PyTistory()
+  pytistory.configure()
+
+  response = pytistory.blog.info()
+
+결과값은 아래처럼 받을 수 있습니다.
+
+.. code-block:: json
+
+  {
+    "status": "200",
+    "id": "blogtest_080@hanmail.net",
+    "item": [
+      {
+        "url": "http://oauth.tistory.com",
+        "secondaryUrl": "http://",
+        "nickname": "Tistory API",
+        "title": "나만의 앱, Tistory OAuth API 로 만들어보세요!",
+        "description": "",
+        "default": "Y",
+        "blogIconUrl":
+          "http://i1.daumcdn.net/cfs.tistory/blog/79/795307/index.gif",
+        "faviconUrl":
+          "http://i1.daumcdn.net/cfs.tistory/blog/79/795307/index.ico",
+        "profileThumbnailImageUrl":
+          "http://cfile1.uf.tistory.com/R106x0/1851DB584DAF942950AF29",
+        "profileImageUrl":
+          "http://cfile1.uf.tistory.com/R106x0/1851DB584DAF942950AF29",
+        "statistics": {
+          "post": "3",
+          "comment": "0",
+          "trackback": "0",
+          "guestbook": "0",
+          "invitation": "0"
+        }
+      },
+      {
+        "url": "http://oauth2.tistory.com",
+        "secondaryUrl": "http://",
+        "nickname": "Tistory API",
+        "title": "나만의 비밀 홈",
+        "description": "",
+        "default": "N",
+        "blogIconUrl":
+          "http://i1.daumcdn.net/cfs.tistory/blog/79/795308/index.gif",
+        "faviconUrl":
+          "http://i1.daumcdn.net/cfs.tistory/blog/79/795308/index.ico",
+        "profileThumbnailImageUrl": "",
+        "profileImageUrl": "",
+        "blogId": "795308",
+        "statistics": {
+          "post": "0",
+          "comment": "0",
+          "trackback": "0",
+          "guestbook": "0",
+          "invitation": "0"
+        }
+      }
+    ]
+  }
+
 
 기여
 ----
