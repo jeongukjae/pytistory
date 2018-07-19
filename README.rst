@@ -109,6 +109,12 @@ pytistory는 ``pip``\ 를 통해 설치할 수 있습니다.
 
 작성 중
 
+기여
+----
+
+이 프로젝트는 부족한 점이 많습니다. Contribution은 언제나 환영입니다. 혹시 오류, 버그 혹은 업데이트가 필요한 점이 있으시다면
+`PR <https://github.com/JeongUkJae/pytistory/pulls>`_ 또는 `Issue <https://github.com/JeongUkJae/pytistory/issues>`_ 를 통해
+언제든지 알려주세요. 👏
 
 Copyright & License
 -------------------
