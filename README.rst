@@ -17,6 +17,9 @@ PyTistory
   :target: https://pypi.org/project/pytistory
 .. image:: https://img.shields.io/pypi/status/pytistory.svg
   :target: https://pypi.org/project/pytistory
+.. image:: https://readthedocs.org/projects/pytistory/badge/?version=latest
+  :target: https://pytistory.readthedocs.io/ko/latest/?badge=latest
+  :alt: Documentation Status
 
 PyTistory는 `티스토리 오픈 API 가이드 <http://www.tistory.com/guide/api/index>`_ 를 참고하여 Python으로 작성한 티스토리
 API 클라이언트입니다. `티스토리 오픈 API 가이드 인증 방식 <http://www.tistory.com/guide/api/oauth>`_ 중
