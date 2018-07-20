@@ -23,7 +23,8 @@ PyTistory
 
 PyTistory는 `티스토리 오픈 API 가이드 <http://www.tistory.com/guide/api/index>`_ 를 참고하여 Python으로 작성한 티스토리
 API 클라이언트입니다. `티스토리 오픈 API 가이드 인증 방식 <http://www.tistory.com/guide/api/oauth>`_ 중
-Client-side flow 방식에 따라 구현되었습니다.
+Client-side flow 방식에 따라 구현되었습니다. 자세한 사용법은 `PyTistory Documentation <https://pytistory.readthedocs.io/ko/latest/>`_ 에서
+확인하실 수 있습니다.
 
 Installation
 ------------
