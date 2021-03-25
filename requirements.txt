@@ -27,7 +27,7 @@ Pygments==2.3.1
 pylint==2.2.2
 pyparsing==2.3.1
 pytz==2018.9
-PyYAML==3.13
+PyYAML==5.4
 requests==2.21.0
 requests-mock==1.5.2
 six==1.12.0
